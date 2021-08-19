@@ -1,0 +1,35 @@
+{
+  "canisters": {
+    "search": {
+      "main": "src/search/main.mo",
+      "type": "motoko"
+    },
+    "search_assets": {
+      "dependencies": [
+        "search"
+      ],
+      "frontend": {
+        "entrypoint": "src/search_assets/src/index.html"
+      },
+      "source": [
+        "src/search_assets/assets",
+        "dist/search_assets/"
+      ],
+      "type": "assets"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "dfx": "0.8.0",
+  "networks": {
+    "local": {
+      "bind": "127.0.0.1:8000",
+      "type": "ephemeral"
+    }
+  },
+  "version": 1
+}
