@@ -3,12 +3,18 @@
 .idea/
 **/*~
 
+# Rust
+target/
+
 # Mac OSX temporary files
 .DS_Store
 **/.DS_Store
 
 # dfx temporary files
 .dfx/
+
+# Build files
+src/declarations
 
 # frontend code
 node_modules/

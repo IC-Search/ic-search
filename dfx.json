@@ -1,8 +1,10 @@
 {
   "canisters": {
     "search": {
-      "main": "src/search/main.mo",
-      "type": "motoko"
+      "build": "cargo build --target wasm32-unknown-unknown --package search --release",
+      "candid": "src/search/src/search.did",
+      "wasm": "target/wasm32-unknown-unknown/release/search.wasm",
+      "type": "custom"
     },
     "search_assets": {
       "dependencies": [
