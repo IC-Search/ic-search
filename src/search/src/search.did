@@ -51,5 +51,6 @@ service : {
     // Returns amount of actually deposited cycles.
     "withdraw_cycles": (amount: nat64, destination: CanisterId) -> (nat64);
     
-    "print": () -> () query;
+    // Just leaving this here for test purposes.
+    "greet": (text) -> (text) query;
 }
