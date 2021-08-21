@@ -1,3 +1,55 @@
+// The data recorded by the website owners and returned as
+// a search result in a search request. 
+type WebsiteDescription = record {
+    name: text;
+    link: text;
+    description: text;
+};
+
+// Refers to the amount, staked on a term.
+// Can also refer to a stake delta.
+type Stake = record {
+    term: text;
+    stake: int64;
+};
+
+// This is basically the primary key for a `WebsiteDescription`.
+// There can be more than one descriptions about a particular website,
+// but only one by a PrincipalId.
+type Website = record {
+    owner: PrincipalId;
+    link: text;
+};
+
 service : {
+    // ---- Basic Search ----
+
+    // This is the search request that is sent by the user.
+    // We allow for pagination in the backend to reduce the IC bandwidth.
+    // We do the splitting from input text to terms vector in the frontend,
+    // to allow for different separators without need for backend changes.
+    "search": (terms: vec text, page: nat64, entries_per_page: nat64) -> (vec WebsiteDescription) query;
+
+    // ---- Website Management ----
+    // TODO
+
+    // ---- Stake Management ----
+    // TODO
+
+    // ---- Cycle Management ----
+
+    // Deposits the cycles attached to this call as callers deposit.
+    //
+    // If more cycles than `max_amount` is provided, only `max_amount` is withdrawn and
+    // the rest is returned.
+    //
+    // Returns number of actually withdrawn cycles.
+    "deposit_cycles": (max_amount: nat64) -> (nat64);
+    
+    // Withdraws up to `amount` of cycles to the cycles wallet specified by `destination`.
+    //
+    // Returns amount of actually deposited cycles.
+    "withdraw_cycles": (amount: nat64, destination: CanisterId) -> (nat64);
+    
     "print": () -> () query;
 }
