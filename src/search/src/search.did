@@ -17,7 +17,7 @@ type Stake = record {
 // There can be more than one descriptions about a particular website,
 // but only one by a PrincipalId.
 type Website = record {
-    owner: PrincipalId;
+    owner: principal;
     link: text;
 };
 
@@ -28,15 +28,24 @@ service : {
     // We allow for pagination in the backend to reduce the IC bandwidth.
     // We do the splitting from input text to terms vector in the frontend,
     // to allow for different separators without need for backend changes.
-    "search": (terms: vec text, page: nat64, entries_per_page: nat64) -> (vec WebsiteDescription) query;
+    "search": (terms: vec text, page: nat64, entries_per_page: nat64) -> (results: vec WebsiteDescription) query;
 
     // ---- Website Management ----
     // TODO
 
     // ---- Stake Management ----
-    // TODO
+    
+    // Returns the stakes placed on a website.
+    "get_stakes": (website: Website) -> (stakes: vec Stake) query;
+    
+    // Function used to stake on websites.
+    // The `stake_delta` can be used to both increase or decrase the stake.
+    "stake": (link: text, stake_delta: vec Stake) -> (new_stakes: vec Stake);
 
     // ---- Cycle Management ----
+
+    // Returns the cycles, currently debosited by the caller.
+    "get_cycles": () -> (deposited: nat64) query;
 
     // Deposits the cycles attached to this call as callers deposit.
     //
@@ -44,12 +53,12 @@ service : {
     // the rest is returned.
     //
     // Returns number of actually withdrawn cycles.
-    "deposit_cycles": (max_amount: nat64) -> (nat64);
+    "deposit_cycles": (max_amount: nat64) -> (deposited: nat64);
     
     // Withdraws up to `amount` of cycles to the cycles wallet specified by `destination`.
     //
     // Returns amount of actually deposited cycles.
-    "withdraw_cycles": (amount: nat64, destination: CanisterId) -> (nat64);
+    "withdraw_cycles": (amount: nat64, destination: principal) -> (withdrawn: nat64);
     
     // Just leaving this here for test purposes.
     "greet": (text) -> (text) query;
