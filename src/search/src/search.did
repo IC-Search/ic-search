@@ -31,7 +31,15 @@ service : {
     "search": (terms: vec text, page: nat64, entries_per_page: nat64) -> (results: vec WebsiteDescription) query;
 
     // ---- Website Management ----
-    // TODO
+    // Get all websites, that the caller has registered.
+    "get_websites": () -> (websites: vec WebsiteDescription) query;
+
+    // Set the description of a website.
+    "set_description": (website: WebsiteDescription) -> ();
+
+    // Removes the website. This automatically unstakes all
+    // stakes from the website.
+    "remove_website": (link: text) -> ();
 
     // ---- Stake Management ----
     
