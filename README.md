@@ -19,6 +19,14 @@ cd search/
 dfx help
 dfx config --help
 ```
+## Prerequisite
+```bash
+# Add Rust Compiler
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+# Once added, in a new terminal window run:
+rustup target add wasm32-unknown-unknown
+```
 
 ## Running the project locally
 
