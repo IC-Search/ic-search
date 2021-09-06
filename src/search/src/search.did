@@ -70,4 +70,5 @@ service : {
     
     // Just leaving this here for test purposes.
     "greet": (text) -> (text) query;
+    "greet_caller": () -> (text) query; 
 }
