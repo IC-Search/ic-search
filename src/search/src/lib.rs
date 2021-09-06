@@ -6,8 +6,16 @@ mod manage;
 mod search;
 mod stake;
 
+use async_trait::async_trait;
 use candid::{CandidType, Deserialize};
-use ic_cdk::{api::time, caller, export::Principal};
+use ic_cdk::{
+    api::{
+        call::{call_with_payment, msg_cycles_accept},
+        time,
+    },
+    caller,
+    export::Principal,
+};
 use ic_cdk_macros::query;
 use std::{cell::RefCell, collections::HashMap, fmt::Debug};
 
@@ -83,14 +91,18 @@ struct Stake {
     value: i64,
 }
 
+#[async_trait]
 trait Environment: Debug {
     fn get_caller(&self) -> Principal;
     fn get_time(&self) -> u64;
+    async fn send_cycles_to_canister(&self, amount: u64, destination: Principal);
+    fn accept_cycles(&self, amount: u64) -> u64;
 }
 
 #[derive(Debug, Clone)]
 struct CanisterEnvironment;
 
+#[async_trait]
 impl Environment for CanisterEnvironment {
     fn get_caller(&self) -> Principal {
         caller()
@@ -99,25 +111,74 @@ impl Environment for CanisterEnvironment {
     fn get_time(&self) -> u64 {
         time()
     }
+
+    async fn send_cycles_to_canister(&self, amount: u64, destination: Principal) {
+        match call_with_payment(destination, &"wallet_receive", (), amount).await {
+            Ok(()) => (),
+            Err(err) => todo!(),
+        }
+    }
+
+    fn accept_cycles(&self, amount: u64) -> u64 {
+        msg_cycles_accept(amount)
+    }
 }
 
 #[cfg(test)]
 mod test {
+    use std::{
+        cmp::min,
+        sync::{Arc, Mutex, MutexGuard},
+    };
+
     use super::*;
 
     #[derive(Debug, Clone)]
-    struct TestEnvironment {
+    struct TestEnvironment(Arc<Mutex<TestEnvironmentInner>>);
+
+    #[derive(Debug, Clone)]
+    struct TestEnvironmentInner {
         caller: Principal,
         time: u64,
+        cycles_sent: Option<(u64, Principal)>,
+        max_cycles_to_accept: Option<u64>,
     }
 
+    impl TestEnvironment {
+        #[allow(dead_code)]
+        fn new() -> Self {
+            Self(Arc::new(Mutex::new(TestEnvironmentInner {
+                caller: Principal::anonymous(),
+                time: 0,
+                cycles_sent: None,
+                max_cycles_to_accept: None,
+            })))
+        }
+
+        fn lock(&self) -> MutexGuard<TestEnvironmentInner> {
+            self.0.lock().unwrap()
+        }
+    }
+
+    #[async_trait]
     impl Environment for TestEnvironment {
         fn get_caller(&self) -> Principal {
-            self.caller
+            self.lock().caller
         }
 
         fn get_time(&self) -> u64 {
-            self.time
+            self.lock().time
+        }
+
+        async fn send_cycles_to_canister(&self, amount: u64, destination: Principal) {
+            self.lock().cycles_sent = Some((amount, destination))
+        }
+
+        fn accept_cycles(&self, amount: u64) -> u64 {
+            match self.lock().max_cycles_to_accept {
+                Some(max_amount) => min(max_amount, amount),
+                None => amount,
+            }
         }
     }
 }
