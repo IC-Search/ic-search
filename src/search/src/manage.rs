@@ -30,3 +30,5 @@ impl<E: Environment> AppState<E> {
         todo!()
     }
 }
+
+// TODO: Tests

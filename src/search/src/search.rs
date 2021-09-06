@@ -14,6 +14,19 @@ impl<E: Environment> AppState<E> {
         page: u64,
         entries_per_page: u64,
     ) -> Vec<WebsiteDescription> {
+        // - Initialize Score map
+        // - For each term:
+        // -    Get stake
+        // -    For each stake:
+        // -        Add stake to website score
+        // - Map to vec
+        // - Sort websites by score
+        // - Chunk by `entries_per_page`
+        // - Take chunk number `page`
+        // - Map to description
+        // - Return
         todo!()
     }
 }
+
+// TODO: Tests

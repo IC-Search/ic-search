@@ -29,6 +29,7 @@ fn greet_caller() -> String {
 ///
 /// NOTE: `staked_websites` and `staked_terms` describe the same data, and need to be kept in sync.
 /// The reason we keep the data twice is because we need fast access by terms and by website keys.
+/// For the same reason, we need to keep `website` and `website_owners` in sync.
 #[derive(Debug, Clone)]
 struct AppState<E: Environment> {
     /// Handle to the environment.
@@ -37,14 +38,17 @@ struct AppState<E: Environment> {
     /// These are the unstaked tokens, the website owners have currently deposited on the service.
     unstaked_deposits: HashMap<Principal, u64>,
 
+    /// Maps principals to websites, which is useful to know, which websites are staked.
+    website_owners: HashMap<Principal, Vec<String>>,
+
     /// The website descriptions.
     websites: HashMap<Website, WebsiteDescription>,
 
     /// Stores the stakes such that they are searchable by website.
-    staked_websites: HashMap<Website, (u64, String)>,
+    staked_websites: HashMap<Website, Vec<(u64, String)>>,
 
     /// Stores the stakes such that they are searchable by term.
-    staked_terms: HashMap<String, (u64, Website)>,
+    staked_terms: HashMap<String, Vec<(u64, Website)>>,
 }
 
 impl<E: Environment> AppState<E> {
@@ -52,6 +56,7 @@ impl<E: Environment> AppState<E> {
         Self {
             env,
             unstaked_deposits: HashMap::new(),
+            website_owners: HashMap::new(),
             websites: HashMap::new(),
             staked_websites: HashMap::new(),
             staked_terms: HashMap::new(),
