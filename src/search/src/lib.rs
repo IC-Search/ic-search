@@ -115,7 +115,7 @@ impl Environment for CanisterEnvironment {
     async fn send_cycles_to_canister(&self, amount: u64, destination: Principal) {
         match call_with_payment(destination, &"wallet_receive", (), amount).await {
             Ok(()) => (),
-            Err(err) => todo!(),
+            Err((_, string)) => panic!("Unexpected error {}", string),
         }
     }
 
