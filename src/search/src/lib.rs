@@ -1,4 +1,12 @@
-use candid::CandidType;
+// TODO: Remove after implementing functionality
+#![allow(unused_variables)]
+
+mod deposit;
+mod manage;
+mod search;
+mod stake;
+
+use candid::{CandidType, Deserialize};
 use ic_cdk::{api::time, caller, export::Principal};
 use ic_cdk_macros::query;
 use std::{cell::RefCell, fmt::Debug};
@@ -28,20 +36,20 @@ impl<E: Environment> AppState<E> {
     }
 }
 
-#[derive(Debug, Clone, CandidType)]
+#[derive(Debug, Clone, CandidType, Deserialize)]
 struct WebsiteDescription {
     name: String,
     link: String,
     description: String,
 }
 
-#[derive(Debug, Clone, CandidType)]
+#[derive(Debug, Clone, CandidType, Deserialize)]
 struct Website {
     owner: Principal,
     link: String,
 }
 
-#[derive(Debug, Clone, CandidType)]
+#[derive(Debug, Clone, CandidType, Deserialize)]
 struct Stake {
     term: String,
     value: i64,
