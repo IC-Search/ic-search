@@ -11,3 +11,4 @@ path = "src/lib.rs"
 [dependencies]
 ic-cdk = "0.3"
 ic-cdk-macros = "0.3"
+candid = "0.7.6"
