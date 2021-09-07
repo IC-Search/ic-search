@@ -110,6 +110,28 @@ impl<E: Environment> AppState<E> {
             available_cycles -= stake.value;
         }
 
+        // Update the balances
+        if available_cycles == 0 {
+            self.unstaked_deposits.remove(&owner);
+        } else {
+            self.unstaked_deposits.insert(owner, available_cycles);
+        }
+
+        let mut staked_website: Vec<(u64, String)> = Vec::with_capacity(term_balances.len());
+        for (term, balance) in term_balances {
+            staked_website.push((balance, term.clone()));
+            let stake_entries = self.staked_terms.entry(term.clone()).or_insert(Vec::new());
+            let maybe_staked = stake_entries.iter().position(|entry| entry.1 == website);
+            let new_stake_entry = (balance, website.clone());
+            match maybe_staked {
+                Some(index) => {
+                    std::mem::replace(&mut stake_entries[index], new_stake_entry);
+                }
+                None => stake_entries.push(new_stake_entry),
+            };
+        }
+
+        self.staked_websites.insert(website.clone(), staked_website);
         // Get the stakes for a single site.
         self._get_stakes(website)
     }
