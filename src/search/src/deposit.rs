@@ -4,8 +4,8 @@ use ic_cdk_macros::{query, update};
 use std::cmp::min;
 
 #[query]
-fn get_cycles() -> u64 {
-    APP.with(|state| state.borrow().get_cycles())
+fn get_unstaked_cycles() -> u64 {
+    APP.with(|state| state.borrow().get_unstaked_cycles())
 }
 
 #[update]
@@ -34,7 +34,7 @@ async fn withdraw_cycles(max_amount: u64, destination: Principal) -> u64 {
 }
 
 impl<E: Environment> AppState<E> {
-    fn get_cycles(&self) -> u64 {
+    fn get_unstaked_cycles(&self) -> u64 {
         self.unstaked_deposits
             .get(&self.env.get_non_anon_caller())
             .unwrap_or(&0)
