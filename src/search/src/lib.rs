@@ -79,7 +79,7 @@ struct WebsiteDescription {
     description: String,
 }
 
-#[derive(Debug, Clone, CandidType, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, CandidType, Deserialize)]
 struct Website {
     owner: Principal,
     link: String,
