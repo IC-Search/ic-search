@@ -89,12 +89,13 @@ impl<E: Environment> AppState<E> {
         // Remove from websites
         self.websites.remove(&website);
 
-        // Move stake back to unstaked_deposits
-        // Remove stake for terms
+        // Remove the website from the staked_websites.
         let staked = self
             .staked_websites
             .remove(&website)
             .expect("Stake could not be found for principal.");
+
+        // Remove the staked_terms and total the staked cycles.
         let mut total_staked_cycles: u64 = 0;
         for (staked_cycles, term) in staked {
             let stakes = self
@@ -114,6 +115,8 @@ impl<E: Environment> AppState<E> {
             total_staked_cycles += staked_cycles;
             self.staked_terms.insert(term, filtered_stakes);
         }
+
+        // Update the unstaked_deposits for the owner.
         self.unstaked_deposits
             .entry(owner)
             .and_modify(|deposits| *deposits += total_staked_cycles)
