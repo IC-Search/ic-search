@@ -88,10 +88,10 @@ impl<E: Environment> AppState<E> {
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashMap;
-
     use super::*;
     use crate::test::*;
+    use ic_cdk::block_on;
+    use std::collections::HashMap;
 
     fn test_state_for_deposit(
         env: TestEnvironment,
@@ -108,7 +108,7 @@ mod tests {
     }
 
     #[test]
-    fn multi_deposit_test() {
+    fn deposit_test() {
         let env = TestEnvironment::new();
         let mut app = test_state_for_deposit(env.clone(), vec![]);
 
@@ -131,6 +131,54 @@ mod tests {
         // Check the second callers cycles
         env.set_caller(test_principal_id(1));
         assert_eq!(app.get_unstaked_cycles(), 40);
+    }
+
+    /// This function mimics the behavioud of the exported withdraw function
+    fn test_withdraw_impl(
+        app: &mut AppState<TestEnvironment>,
+        max_amount: u64,
+        destination: Principal,
+    ) -> u64 {
+        let (cycles, env) = app.prepare_withdraw_cycles(max_amount);
+
+        if cycles == 0 {
+            return 0;
+        }
+
+        block_on(async move {
+            env.send_cycles_to_canister(cycles, destination).await;
+        });
+
+        app.finish_withdraw_cycles(cycles);
+        cycles
+    }
+
+    /// Tests that unknown callers can not withdraw tokens and
+    /// that known callers can only withdraw the amount they actually deposited
+    #[test]
+    fn withdraw_test() {
+        let env = TestEnvironment::new();
+        let mut app = test_state_for_deposit(
+            env.clone(),
+            vec![(test_principal_id(0), 10), (test_principal_id(1), 30)],
+        );
+
+        // Try to withdraw exactly 10 token from first account and see that there are none left.
+        env.set_caller(test_principal_id(0));
+        assert_eq!(test_withdraw_impl(&mut app, 10, test_principal_id(10)), 10);
+        assert_eq!(env.get_cycles_sent(), Some((10, test_principal_id(10))));
+        assert_eq!(app.get_unstaked_cycles(), 0);
+
+        // Try to withdraw 10 tokens from second account and see that there are 20 left.
+        env.set_caller(test_principal_id(1));
+        assert_eq!(test_withdraw_impl(&mut app, 10, test_principal_id(11)), 10);
+        assert_eq!(env.get_cycles_sent(), Some((10, test_principal_id(11))));
+        assert_eq!(app.get_unstaked_cycles(), 20);
+
+        // Try to withdraw 50 cycles and see that only 20 are withdrawn
+        assert_eq!(test_withdraw_impl(&mut app, 50, test_principal_id(12)), 20);
+        assert_eq!(env.get_cycles_sent(), Some((20, test_principal_id(12))));
+        assert_eq!(app.get_unstaked_cycles(), 0);
     }
 
     /// Tests that an anonymous account can not deposit cycles
