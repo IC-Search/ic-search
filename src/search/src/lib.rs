@@ -86,9 +86,15 @@ struct Website {
 }
 
 #[derive(Debug, Clone, CandidType, Deserialize)]
+enum StakeDelta {
+    Add(Stake),
+    Remove(Stake),
+}
+
+#[derive(Debug, Clone, CandidType, Deserialize)]
 struct Stake {
     term: String,
-    value: i64,
+    value: u64,
 }
 
 #[async_trait]
