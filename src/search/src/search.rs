@@ -94,10 +94,10 @@ mod tests {
             vec![(
                 String::from("Test"),
                 vec![
-                    (0, test_website(0)),
-                    (1, test_website(1)),
-                    (2, test_website(2)),
-                    (3, test_website(3)),
+                    (1, test_website(0)),
+                    (2, test_website(1)),
+                    (3, test_website(2)),
+                    (4, test_website(3)),
                 ],
             )],
         );
@@ -108,6 +108,55 @@ mod tests {
 
         // Check that with the correct term, the values are orderd in descending order
         let result = app.search(vec![String::from("Test")], 0, 100);
+        assert_eq!(result[0].name, test_website_name(3));
+        assert_eq!(result[1].name, test_website_name(2));
+        assert_eq!(result[2].name, test_website_name(1));
+        assert_eq!(result[3].name, test_website_name(0));
+    }
+
+    /// Tests that entries with more matching terms get ranked higher
+    #[test]
+    fn test_multi_term_ordering() {
+        let app = test_state_for_search(
+            TestEnvironment::new(),
+            vec![
+                (test_website(0), test_website_description(0)),
+                (test_website(1), test_website_description(1)),
+                (test_website(2), test_website_description(2)),
+                (test_website(3), test_website_description(3)),
+            ],
+            vec![
+                (
+                    String::from("Term1"),
+                    vec![
+                        (1, test_website(0)),
+                        (1, test_website(1)),
+                        (1, test_website(2)),
+                        (1, test_website(3)),
+                    ],
+                ),
+                (
+                    String::from("Term2"),
+                    vec![
+                        (1, test_website(1)),
+                        (1, test_website(2)),
+                        (1, test_website(3)),
+                    ],
+                ),
+                (
+                    String::from("Term3"),
+                    vec![(1, test_website(2)), (1, test_website(3))],
+                ),
+                (String::from("Term4"), vec![(1, test_website(3))]),
+            ],
+        );
+
+        let search_terms: Vec<String> = ["Term1", "Term2", "Term3", "Term4"]
+            .iter()
+            .map(|s| String::from(*s))
+            .collect();
+        let result = app.search(search_terms, 0, 100);
+
         assert_eq!(result[0].name, test_website_name(3));
         assert_eq!(result[1].name, test_website_name(2));
         assert_eq!(result[2].name, test_website_name(1));
