@@ -13,6 +13,13 @@ type Stake = record {
     stake: int64;
 };
 
+// This refers to the change in staking for a term.
+// Each type takes a stake to signify the term and the value to change by.
+type StakeDelta = variant {
+    Add: Stake;
+    Remove: Stake;
+};
+
 // This is basically the primary key for a `WebsiteDescription`.
 // There can be more than one descriptions about a particular website,
 // but only one by a PrincipalId.
@@ -48,7 +55,7 @@ service : {
     
     // Function used to stake on websites.
     // The `stake_delta` can be used to both increase or decrase the stake.
-    "stake": (link: text, stake_delta: vec Stake) -> (new_stakes: vec Stake);
+    "stake": (link: text, stake_delta: vec StakeDelta) -> (new_stakes: vec Stake);
 
     // ---- Cycle Management ----
 
