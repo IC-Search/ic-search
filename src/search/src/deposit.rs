@@ -42,7 +42,20 @@ impl<E: Environment> AppState<E> {
     }
 
     fn deposit_cycles(&mut self, max_amount: u64) -> u64 {
-        todo!()
+        // Get the caller
+        let caller = self.env.get_non_anon_caller();
+
+        // Accept the cycles
+        let accepted_cycles = self.env.accept_cycles(max_amount);
+
+        // Register accepted cycles in the app state
+        self.unstaked_deposits
+            .entry(caller)
+            .and_modify(|current_cycles| *current_cycles += accepted_cycles)
+            .or_insert(accepted_cycles);
+
+        // Return the number of accepted cycles
+        accepted_cycles
     }
 
     /// Returns the amount of cycles that can actually be sent and the environments, such that we can send the cycles.
