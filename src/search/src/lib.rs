@@ -139,10 +139,13 @@ mod test {
         sync::{Arc, Mutex, MutexGuard},
     };
 
+    use rand::{Rng, SeedableRng};
+    use rand_chacha::ChaCha8Rng;
+
     use super::*;
 
     #[derive(Debug, Clone)]
-    struct TestEnvironment(Arc<Mutex<TestEnvironmentInner>>);
+    pub(crate) struct TestEnvironment(Arc<Mutex<TestEnvironmentInner>>);
 
     #[derive(Debug, Clone)]
     struct TestEnvironmentInner {
@@ -153,8 +156,7 @@ mod test {
     }
 
     impl TestEnvironment {
-        #[allow(dead_code)]
-        fn new() -> Self {
+        pub(crate) fn new() -> Self {
             Self(Arc::new(Mutex::new(TestEnvironmentInner {
                 caller: Principal::anonymous(),
                 time: 0,
@@ -188,6 +190,37 @@ mod test {
                 Some(max_amount) => min(max_amount, amount),
                 None => amount,
             }
+        }
+    }
+
+    pub(crate) fn test_principal_id(seed: u64) -> Principal {
+        let mut rng = ChaCha8Rng::seed_from_u64(seed);
+        let mut data: [u8; 29] = [0; 29];
+        rng.try_fill(&mut data).unwrap();
+        Principal::from_slice(&data)
+    }
+
+    pub(crate) fn test_website_name(seed: u64) -> String {
+        lipsum::lipsum_words_from_seed(2, seed)
+    }
+
+    pub(crate) fn test_url(_seed: u64) -> String {
+        // TODO: Come up with a good scheme here
+        String::from("")
+    }
+
+    pub(crate) fn test_website(seed: u64) -> Website {
+        Website {
+            owner: test_principal_id(seed),
+            link: test_url(seed),
+        }
+    }
+
+    pub(crate) fn test_website_description(seed: u64) -> WebsiteDescription {
+        WebsiteDescription {
+            name: test_website_name(seed),
+            link: test_url(seed),
+            description: lipsum::lipsum_words_from_seed(30, seed),
         }
     }
 }

@@ -14,3 +14,8 @@ ic-cdk-macros = "0.3"
 candid = "0.7.6"
 serde = "1.0.130"
 async-trait = "0.1.51"
+
+[dev-dependencies]
+rand = "0.8.4"
+rand_chacha = "0.3.1"
+lipsum = "0.8.0"

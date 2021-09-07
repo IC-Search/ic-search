@@ -49,13 +49,68 @@ impl<E: Environment> AppState<E> {
             .map(|page| {
                 page.iter()
                     .filter_map(|(website, _)| {
-                        self.websites.get(website).map(|website| website.clone())
+                        self.websites
+                            .get(website)
+                            .map(|description| description.clone())
                     })
                     .collect::<Vec<WebsiteDescription>>()
             })
             // Return empty vector if the nth page does not exist
-            .unwrap_or_default()
+            .unwrap_or(vec![])
     }
 }
 
-// TODO: Tests
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::test::*;
+
+    fn test_state_for_search(
+        env: TestEnvironment,
+        mut websites: Vec<(Website, WebsiteDescription)>,
+        mut staked_terms: Vec<(String, Vec<(u64, Website)>)>,
+    ) -> AppState<TestEnvironment> {
+        AppState {
+            env,
+            unstaked_deposits: HashMap::new(),
+            website_owners: HashMap::new(),
+            websites: websites.drain(..).collect(),
+            staked_websites: HashMap::new(),
+            staked_terms: staked_terms.drain(..).collect(),
+        }
+    }
+
+    /// Tests that the ordering of the websites with respect to a single term are correct
+    #[test]
+    fn test_single_term_ordering() {
+        let app = test_state_for_search(
+            TestEnvironment::new(),
+            vec![
+                (test_website(0), test_website_description(0)),
+                (test_website(1), test_website_description(1)),
+                (test_website(2), test_website_description(2)),
+                (test_website(3), test_website_description(3)),
+            ],
+            vec![(
+                String::from("Test"),
+                vec![
+                    (0, test_website(0)),
+                    (1, test_website(1)),
+                    (2, test_website(2)),
+                    (3, test_website(3)),
+                ],
+            )],
+        );
+
+        // Check that a different term yields empty result
+        let result = app.search(vec![String::from("Nottest")], 0, 100);
+        assert!(result.is_empty());
+
+        // Check that with the correct term, the values are orderd in descending order
+        let result = app.search(vec![String::from("Test")], 0, 100);
+        assert_eq!(result[0].name, test_website_name(3));
+        assert_eq!(result[1].name, test_website_name(2));
+        assert_eq!(result[2].name, test_website_name(1));
+        assert_eq!(result[3].name, test_website_name(0));
+    }
+}
