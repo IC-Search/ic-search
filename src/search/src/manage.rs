@@ -132,7 +132,7 @@ impl<E: Environment> AppState<E> {
         self.unstaked_deposits
             .entry(owner)
             .and_modify(|deposits| *deposits += total_staked_cycles)
-            .or_insert(0);
+            .or_insert(total_staked_cycles);
     }
 }
 
