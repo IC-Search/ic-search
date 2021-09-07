@@ -19,7 +19,10 @@ fn remove_website(link: String) {
 
 impl<E: Environment> AppState<E> {
     fn get_websites(&self) -> Vec<WebsiteDescription> {
+        // Get the caller
         let owner = self.env.get_non_anon_caller();
+
+        // Get owned website descriptions
         match self.website_owners.get(&owner) {
             Some(websites) => websites
                 .iter()
@@ -39,20 +42,29 @@ impl<E: Environment> AppState<E> {
     }
 
     fn set_description(&mut self, website: WebsiteDescription) {
+        // Get the caller
         let owner = self.env.get_non_anon_caller();
+
+        // Check if the principal has any websites.
         if !self.website_owners.contains_key(&owner) {
+            // Adds an empty vector if principal does not have websites.
             self.website_owners.insert(owner, Vec::new());
         }
 
+        // Get the principal's websites.
         let owned_websites = self
             .website_owners
             .get_mut(&owner)
-            .expect("Unable to find owned websites.");
+            .expect("Unable to find principal's owned websites.");
 
+        // Check if the website is owned.
+        // If not, add it to owned_websites.
         let website_is_owned = owned_websites.iter().any(|link| link == &website.link);
         if !website_is_owned {
             owned_websites.push(website.link.clone());
         }
+
+        // Add the website to owned websites.
         let owned_website = Website {
             owner,
             link: website.link.clone(),
