@@ -107,8 +107,31 @@ mod tests {
         }
     }
 
-    // TODO: Tests, that multiple accounts can deposit cycles and
-    // check their balance of unstaked tokens
+    #[test]
+    fn multi_deposit_test() {
+        let env = TestEnvironment::new();
+        let mut app = test_state_for_deposit(env.clone(), vec![]);
+
+        // First caller deposits cycles. The `max_amount` is higher than
+        // the amount of cycles sent with the message
+        env.set_caller(test_principal_id(0));
+        env.set_cycles_in_msg(50);
+        app.deposit_cycles(100);
+
+        // Second caller deposits cycles. The `max_amount` is lower than
+        // the amount of cycles sent with the message
+        env.set_caller(test_principal_id(1));
+        env.set_cycles_in_msg(80);
+        app.deposit_cycles(40);
+
+        // Check the first callers cycles
+        env.set_caller(test_principal_id(0));
+        assert_eq!(app.get_unstaked_cycles(), 50);
+
+        // Check the second callers cycles
+        env.set_caller(test_principal_id(1));
+        assert_eq!(app.get_unstaked_cycles(), 40);
+    }
 
     /// Tests that an anonymous account can not deposit cycles
     #[test]
@@ -116,7 +139,7 @@ mod tests {
     fn anon_can_not_deposit() {
         let env = TestEnvironment::new();
         env.set_caller(Principal::anonymous());
-        env.set_max_cycles_to_accept(Some(200));
+        env.set_cycles_in_msg(200);
         let mut app = test_state_for_deposit(TestEnvironment::new(), vec![]);
         app.deposit_cycles(100);
     }
@@ -127,7 +150,7 @@ mod tests {
     fn anon_can_not_withdraw() {
         let env = TestEnvironment::new();
         env.set_caller(Principal::anonymous());
-        env.set_max_cycles_to_accept(Some(200));
+        env.set_cycles_in_msg(200);
         let app = test_state_for_deposit(TestEnvironment::new(), vec![]);
         // NOTE: The preparation allready fails
         app.prepare_withdraw_cycles(100);

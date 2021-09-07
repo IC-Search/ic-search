@@ -158,7 +158,7 @@ mod test {
         caller: Principal,
         time: u64,
         cycles_sent: Option<(u64, Principal)>,
-        max_cycles_to_accept: Option<u64>,
+        cycles_in_msg: u64,
     }
 
     impl TestEnvironment {
@@ -167,7 +167,7 @@ mod test {
                 caller: Principal::anonymous(),
                 time: 0,
                 cycles_sent: None,
-                max_cycles_to_accept: None,
+                cycles_in_msg: 0,
             })))
         }
 
@@ -175,8 +175,8 @@ mod test {
             self.lock().caller = caller;
         }
 
-        pub(crate) fn set_max_cycles_to_accept(&self, max_cycles: Option<u64>) {
-            self.lock().max_cycles_to_accept = max_cycles;
+        pub(crate) fn set_cycles_in_msg(&self, cycles: u64) {
+            self.lock().cycles_in_msg = cycles;
         }
 
         pub(crate) fn get_cycles_sent(&self) -> Option<(u64, Principal)> {
@@ -203,11 +203,8 @@ mod test {
             true
         }
 
-        fn accept_cycles(&self, amount: u64) -> u64 {
-            match self.lock().max_cycles_to_accept {
-                Some(max_amount) => min(max_amount, amount),
-                None => amount,
-            }
+        fn accept_cycles(&self, max_amount: u64) -> u64 {
+            min(max_amount, self.lock().cycles_in_msg)
         }
     }
 
