@@ -14,7 +14,23 @@ fn stake(link: String, stake_delta: Vec<Stake>) -> Vec<Stake> {
 
 impl<E: Environment> AppState<E> {
     fn get_stakes(&self, website: Website) -> Vec<Stake> {
-        todo!()
+        // Get the caller
+        let owner = self.env.get_non_anon_caller();
+        if owner != website.owner {
+            panic!("Principal is not the owner of the website.");
+        }
+
+        let default: Vec<(u64, String)> = Vec::new();
+        // Get the stakes for a single site.
+        self.staked_websites
+            .get(&website)
+            .unwrap_or(&default)
+            .iter()
+            .map(|stake| Stake {
+                term: stake.1.clone(),
+                value: stake.0 as i64,
+            })
+            .collect()
     }
 
     fn stake(&mut self, link: String, stake_delta: Vec<Stake>) -> Vec<Stake> {
