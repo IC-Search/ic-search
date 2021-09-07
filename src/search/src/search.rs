@@ -40,11 +40,21 @@ impl<E: Environment> AppState<E> {
         let mut score: Vec<(Website, u64)> = score.drain().collect();
         score.sort_by_key(|(_, score)| Reverse(*score));
 
-        // - Chunk by `entries_per_page`
-        // - Take chunk number `page`
-        // - Map to description
-        // - Return
-        todo!()
+        score
+            // Chunk by `entries_per_page`
+            .chunks(entries_per_page as usize)
+            // Take nths page
+            .nth(page as usize)
+            // Map the page of website keys to a page of website descriptions
+            .map(|page| {
+                page.iter()
+                    .filter_map(|(website, _)| {
+                        self.websites.get(website).map(|website| website.clone())
+                    })
+                    .collect::<Vec<WebsiteDescription>>()
+            })
+            // Return empty vector if the nth page does not exist
+            .unwrap_or_default()
     }
 }
 
