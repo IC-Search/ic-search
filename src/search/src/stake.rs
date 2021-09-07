@@ -153,16 +153,17 @@ mod tests {
 
     fn test_state_for_staking(
         env: TestEnvironment,
-        mut unstaked_deposits: HashMap<Principal, u64>,
+        mut unstaked_deposits: Vec<(Principal, u64)>,
         mut websites: Vec<(Website, WebsiteDescription)>,
+        mut staked_websites: Vec<(Website, Vec<(u64, String)>)>,
         mut staked_terms: Vec<(String, Vec<(u64, Website)>)>,
     ) -> AppState<TestEnvironment> {
         AppState {
             env,
-            unstaked_deposits: unstaked_deposits.drain().collect(),
+            unstaked_deposits: unstaked_deposits.drain(..).collect(),
             website_owners: HashMap::new(),
             websites: websites.drain(..).collect(),
-            staked_websites: HashMap::new(),
+            staked_websites: staked_websites.drain(..).collect(),
             staked_terms: staked_terms.drain(..).collect(),
         }
     }
@@ -170,12 +171,8 @@ mod tests {
     #[test]
     #[should_panic(expected = "Principal does not have enough unstaked cycles.")]
     fn test_empty_unstaked_deposits() {
-        let mut app = test_state_for_staking(
-            TestEnvironment::new(),
-            HashMap::new(),
-            Vec::new(),
-            Vec::new(),
-        );
+        let mut app =
+            test_state_for_staking(TestEnvironment::new(), vec![], vec![], vec![], vec![]);
         app.env.set_caller(test_principal_id(0));
         app.stake(
             test_url(0),
@@ -188,22 +185,67 @@ mod tests {
 
     #[test]
     fn test_one_staked_deposit_and_one_add_delta() {
-        let principal = test_principal_id(0);
+        let default_stake = Stake {
+            term: String::from("test"),
+            value: 0,
+        };
         let mut app = test_state_for_staking(
             TestEnvironment::new(),
-            [(principal.clone(), 1)].iter().cloned().collect(),
-            Vec::new(),
-            Vec::new(),
+            vec![(test_principal_id(0), 1000)],
+            vec![],
+            vec![],
+            vec![],
         );
-        app.env.set_caller(principal);
+        app.env.set_caller(test_principal_id(0));
         let stakes = app.stake(
             test_url(0),
             vec![StakeDelta::Add(Stake {
                 term: String::from("test"),
-                value: 1,
+                value: 100,
             })],
         );
 
         assert_eq!(stakes.len(), 1);
+        assert_eq!(
+            *app.unstaked_deposits
+                .get(&test_principal_id(0))
+                .unwrap_or(&0),
+            900
+        );
+        let stake = stakes.get(0).unwrap_or(&default_stake);
+        assert_eq!(stake.term, "test");
+        assert_eq!(stake.value, 100);
+    }
+
+    #[test]
+    fn test_one_staked_deposit_and_one_remove_delta() {
+        let default_stake = Stake {
+            term: String::from("test"),
+            value: 0,
+        };
+        let term = String::from("test");
+        let mut app = test_state_for_staking(
+            TestEnvironment::new(),
+            vec![(test_principal_id(0), 200)],
+            vec![(test_website(0), test_website_description(0))],
+            vec![(test_website(0), vec![(800, term.clone())])],
+            vec![(term.clone(), vec![(800, test_website(0))])],
+        );
+        app.env.set_caller(test_principal_id(0));
+        let stakes = app.stake(
+            test_url(0),
+            vec![StakeDelta::Remove(Stake {
+                term: String::from("test"),
+                value: 800,
+            })],
+        );
+
+        assert_eq!(stakes.len(), 0);
+        assert_eq!(
+            *app.unstaked_deposits
+                .get(&test_principal_id(0))
+                .unwrap_or(&0),
+            1000
+        );
     }
 }
