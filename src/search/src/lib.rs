@@ -165,6 +165,18 @@ mod test {
             })))
         }
 
+        pub(crate) fn set_caller(&self, caller: Principal) {
+            self.lock().caller = caller;
+        }
+
+        pub(crate) fn set_max_cycles_to_accept(&self, max_cycles: Option<u64>) {
+            self.lock().max_cycles_to_accept = max_cycles;
+        }
+
+        pub(crate) fn get_cycles_sent(&self) -> Option<(u64, Principal)> {
+            self.lock().cycles_sent
+        }
+
         fn lock(&self) -> MutexGuard<TestEnvironmentInner> {
             self.0.lock().unwrap()
         }

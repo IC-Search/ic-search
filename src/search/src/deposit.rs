@@ -86,4 +86,50 @@ impl<E: Environment> AppState<E> {
     }
 }
 
-// TODO: Tests
+#[cfg(test)]
+mod tests {
+    use std::collections::HashMap;
+
+    use super::*;
+    use crate::test::*;
+
+    fn test_state_for_deposit(
+        env: TestEnvironment,
+        mut unstaked_deposits: Vec<(Principal, u64)>,
+    ) -> AppState<TestEnvironment> {
+        AppState {
+            env,
+            unstaked_deposits: unstaked_deposits.drain(..).collect(),
+            website_owners: HashMap::new(),
+            websites: HashMap::new(),
+            staked_websites: HashMap::new(),
+            staked_terms: HashMap::new(),
+        }
+    }
+
+    // TODO: Tests, that multiple accounts can deposit cycles and
+    // check their balance of unstaked tokens
+
+    /// Tests that an anonymous account can not deposit cycles
+    #[test]
+    #[should_panic]
+    fn anon_can_not_deposit() {
+        let env = TestEnvironment::new();
+        env.set_caller(Principal::anonymous());
+        env.set_max_cycles_to_accept(Some(200));
+        let mut app = test_state_for_deposit(TestEnvironment::new(), vec![]);
+        app.deposit_cycles(100);
+    }
+
+    /// Tests that an anonymous account can not withdraw cycles
+    #[test]
+    #[should_panic]
+    fn anon_can_not_withdraw() {
+        let env = TestEnvironment::new();
+        env.set_caller(Principal::anonymous());
+        env.set_max_cycles_to_accept(Some(200));
+        let app = test_state_for_deposit(TestEnvironment::new(), vec![]);
+        // NOTE: The preparation allready fails
+        app.prepare_withdraw_cycles(100);
+    }
+}
