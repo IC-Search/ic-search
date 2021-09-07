@@ -66,7 +66,7 @@ service : {
     // Withdraws up to `amount` of cycles to the cycles wallet specified by `destination`.
     //
     // Returns amount of actually deposited cycles.
-    "withdraw_cycles": (amount: nat64, destination: principal) -> (withdrawn: nat64);
+    "withdraw_cycles": (max_amount: nat64, destination: principal) -> (withdrawn: nat64);
     
     // Just leaving this here for test purposes.
     "greet": (text) -> (text) query;

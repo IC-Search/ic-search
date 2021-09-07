@@ -92,11 +92,19 @@ struct Stake {
 }
 
 #[async_trait]
-trait Environment: Debug {
+trait Environment: Debug + Clone {
     fn get_caller(&self) -> Principal;
     fn get_time(&self) -> u64;
-    async fn send_cycles_to_canister(&self, amount: u64, destination: Principal);
+    async fn send_cycles_to_canister(&self, amount: u64, destination: Principal) -> bool;
     fn accept_cycles(&self, amount: u64) -> u64;
+
+    fn get_non_anon_caller(&self) -> Principal {
+        let caller = self.get_caller();
+        if caller == Principal::anonymous() {
+            panic!("Anonymous caller not supported");
+        }
+        caller
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -112,10 +120,10 @@ impl Environment for CanisterEnvironment {
         time()
     }
 
-    async fn send_cycles_to_canister(&self, amount: u64, destination: Principal) {
+    async fn send_cycles_to_canister(&self, amount: u64, destination: Principal) -> bool {
         match call_with_payment(destination, &"wallet_receive", (), amount).await {
-            Ok(()) => (),
-            Err((_, string)) => panic!("Unexpected error {}", string),
+            Ok(()) => true,
+            Err((_, string)) => false,
         }
     }
 
@@ -170,8 +178,9 @@ mod test {
             self.lock().time
         }
 
-        async fn send_cycles_to_canister(&self, amount: u64, destination: Principal) {
-            self.lock().cycles_sent = Some((amount, destination))
+        async fn send_cycles_to_canister(&self, amount: u64, destination: Principal) -> bool {
+            self.lock().cycles_sent = Some((amount, destination));
+            true
         }
 
         fn accept_cycles(&self, amount: u64) -> u64 {
