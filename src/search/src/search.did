@@ -53,7 +53,7 @@ service : {
     // ---- Cycle Management ----
 
     // Returns the cycles, currently debosited by the caller.
-    "get_cycles": () -> (deposited: nat64) query;
+    "get_unstaked_cycles": () -> (deposited: nat64) query;
 
     // Deposits the cycles attached to this call as callers deposit.
     //
