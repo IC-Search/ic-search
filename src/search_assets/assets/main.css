@@ -32,3 +32,10 @@ section {
 #greeting:empty {
     display: none;
 }
+
+.landing-main-content {
+    text-align: center;
+    margin: 0 auto;
+    width: 50%;
+}
+
