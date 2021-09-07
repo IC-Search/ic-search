@@ -33,9 +33,14 @@ section {
     display: none;
 }
 
-.landing-main-content {
+.main-content {
     text-align: center;
     margin: 0 auto;
     width: 50%;
 }
 
+.dasboard-main__sites {
+    border-radius: 10px;
+    padding:10px;
+    background-color: #343a40;
+}
