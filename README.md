@@ -30,8 +30,9 @@ With DeFind:
 
 The MVP as part of the Dfinihack hackathon showcases:
 
-- Entering search terms and getting search results
-- Registering websites using Internet Identity
+- User facing UI for searching websites
+- Registering websites
+- Deposit cycles on the service to be used as staking tokens
 - Staking terms on websites
 
 ## Roadmap
