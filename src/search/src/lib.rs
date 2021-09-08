@@ -97,6 +97,12 @@ struct Stake {
     value: u64,
 }
 
+impl Stake {
+    pub(crate) fn term(&self) -> String {
+        self.term.to_lowercase()
+    }
+}
+
 impl Default for Stake {
     fn default() -> Self {
         Self {

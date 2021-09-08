@@ -79,7 +79,7 @@ impl<E: Environment> AppState<E> {
         // Updates balances with the remove deltas.
         let mut reclaimed_cycles: u64 = 0;
         for stake in remove_deltas {
-            let balance = *term_balances.get(&stake.term).unwrap_or(&0);
+            let balance = *term_balances.get(&stake.term()).unwrap_or(&0);
             if balance < stake.value {
                 panic!(
                     "Term {} must have cycles enough staked to remove.",
@@ -88,12 +88,7 @@ impl<E: Environment> AppState<E> {
             }
 
             let new_balance = balance.checked_sub(stake.value).unwrap_or(0);
-            if new_balance == 0 {
-                term_balances.remove(&stake.term);
-            } else {
-                term_balances.insert(stake.term, new_balance);
-            }
-
+            term_balances.insert(stake.term(), new_balance);
             reclaimed_cycles += stake.value;
         }
 
@@ -110,7 +105,7 @@ impl<E: Environment> AppState<E> {
             }
 
             term_balances
-                .entry(stake.term.clone())
+                .entry(stake.term())
                 .and_modify(|balance| {
                     *balance += stake.value;
                 })
@@ -119,32 +114,66 @@ impl<E: Environment> AppState<E> {
             available_cycles -= stake.value;
         }
 
-        // Update the balances
+        // Update the `unstaked_deposits` balances
         if available_cycles == 0 {
             self.unstaked_deposits.remove(&owner);
         } else {
             self.unstaked_deposits.insert(owner, available_cycles);
         }
 
-        let mut staked_website: Vec<(u64, String)> = Vec::with_capacity(term_balances.len());
-        for (term, balance) in term_balances {
-            staked_website.push((balance, term.clone()));
-            let stake_entries = self.staked_terms.entry(term.clone()).or_insert(Vec::new());
-            let maybe_staked = stake_entries
-                .iter()
-                .position(|entry| entry.1.link == website.link);
-            let new_stake_entry = (balance, website.clone());
-            match maybe_staked {
-                Some(index) => {
-                    std::mem::replace(&mut stake_entries[index], new_stake_entry);
-                }
-                None => stake_entries.push(new_stake_entry),
-            };
-        }
+        // Update the indexes `staked_terms` and `staked_websites`.
+        self._update_staked_websites_index(&website, &term_balances);
+        self._update_staked_terms_index(&website, &term_balances);
 
-        self.staked_websites.insert(website.clone(), staked_website);
         // Get the stakes for a single site.
         self._get_stakes(website)
+    }
+
+    fn _update_staked_websites_index(
+        &mut self,
+        website: &Website,
+        term_balances: &HashMap<String, u64>,
+    ) {
+        let staked_website_terms: Vec<(u64, String)> = term_balances
+            .iter()
+            .filter_map(|(term, balance)| {
+                if *balance > 0 {
+                    Some((*balance, term.clone()))
+                } else {
+                    None
+                }
+            })
+            .collect();
+        if !staked_website_terms.is_empty() {
+            self.staked_websites
+                .insert(website.clone(), staked_website_terms);
+        } else {
+            self.staked_websites.remove(website);
+        }
+    }
+
+    fn _update_staked_terms_index(
+        &mut self,
+        website: &Website,
+        term_balances: &HashMap<String, u64>,
+    ) {
+        for (term, balance) in term_balances {
+            let staked_websites = self.staked_terms.entry(term.clone()).or_insert(vec![]);
+            let maybe_stake_index = staked_websites.iter().position(|website_stake| {
+                website_stake.1.link == website.link && website_stake.1.owner == website.owner
+            });
+
+            match maybe_stake_index {
+                Some(index) => {
+                    if *balance == 0 {
+                        staked_websites.remove(index);
+                    } else {
+                        std::mem::replace(&mut staked_websites[index], (*balance, website.clone()));
+                    }
+                }
+                None => staked_websites.push((*balance, website.clone())),
+            };
+        }
     }
 }
 
@@ -325,7 +354,7 @@ mod tests {
                 ),
                 (
                     term2.clone(),
-                    vec![(200, test_website(2)), (500, test_website(2))],
+                    vec![(200, test_website(0)), (500, test_website(2))],
                 ),
             ],
         );
@@ -374,8 +403,20 @@ mod tests {
             .cloned()
             .unwrap_or(vec![]);
         assert_eq!(staked_website_0.len(), 1);
+        let staked_website_0_term_1 = staked_website_0
+            .get(0)
+            .cloned()
+            .unwrap_or((0, String::from("blargh")));
+        assert_eq!(staked_website_0_term_1.0, 1000);
+        assert_eq!(staked_website_0_term_1.1, term2.clone());
 
         // Evaluate that the `staked_terms` hashmap has been maintained correctly.
+        let term1_stakes = app.staked_terms.get(&term).cloned().unwrap_or(vec![]);
+        assert_eq!(term1_stakes.len(), 1);
+        let term1_stakes_1 = term1_stakes.get(0).cloned().unwrap_or((0, test_website(0)));
+        assert_eq!(term1_stakes_1.0, 200);
+        assert_eq!(term1_stakes_1.1.owner, test_principal_id(1));
+
         let term2_stakes = app.staked_terms.get(&term2).cloned().unwrap_or(vec![]);
         assert_eq!(term2_stakes.len(), 2);
         let term2_stakes_1 = term2_stakes.get(0).cloned().unwrap_or((0, test_website(0)));
