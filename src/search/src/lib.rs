@@ -143,15 +143,12 @@ impl CanisterEnvironment {
         }
     }
 
-    pub(crate) fn with_caller_overwrite<T, F: FnOnce() -> T>(
-        &mut self,
-        caller: Principal,
-        f: F,
-    ) -> T {
+    pub(crate) fn set_caller_overwrite(&mut self, caller: Principal) {
         self.caller_overwrite = Some(caller);
-        let result = f();
+    }
+
+    pub(crate) fn unset_caller_overwrite(&mut self) {
         self.caller_overwrite = None;
-        result
     }
 }
 

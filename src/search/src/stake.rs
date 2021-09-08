@@ -95,7 +95,10 @@ impl<E: Environment> AppState<E> {
         let mut available_cycles =
             reclaimed_cycles + self.unstaked_deposits.get(&owner).unwrap_or(&0);
         if available_cycles == 0 && !add_deltas.is_empty() {
-            panic!("Principal does not have enough unstaked cycles.");
+            panic!(
+                "Principal {} does not have enough unstaked cycles.",
+                owner.to_string()
+            );
         }
 
         for stake in add_deltas {
