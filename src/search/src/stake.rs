@@ -80,7 +80,7 @@ impl<E: Environment> AppState<E> {
             let balance = *term_balances.get(&stake.term()).unwrap_or(&0);
             if balance < stake.value {
                 panic!(
-                    "Term {} must have cycles enough staked to remove.",
+                    "Term `{}` must have enough staked cycles to remove.",
                     stake.term
                 );
             }
@@ -99,7 +99,10 @@ impl<E: Environment> AppState<E> {
 
         for stake in add_deltas {
             if available_cycles < stake.value {
-                panic!("Not enough cycles available to stake term {}.", stake.term);
+                panic!(
+                    "Not enough cycles available to stake term `{}`.",
+                    stake.term
+                );
             }
 
             term_balances
@@ -169,17 +172,23 @@ impl<E: Environment> AppState<E> {
                     if *balance == 0 {
                         staked_websites.remove(index);
                     } else {
-                        std::mem::replace(&mut staked_websites[index], (*balance, website.clone()));
+                        staked_websites[index] = (*balance, website.clone());
                     }
                 }
                 None => staked_websites.push((*balance, website.clone())),
             };
+
+            if staked_websites.is_empty() {
+                self.staked_terms.remove(term);
+            }
         }
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use candid::Principal;
+
     use super::*;
     use crate::{test::*, WebsiteDescription};
     use candid::Principal;
@@ -217,11 +226,25 @@ mod tests {
     }
 
     #[test]
+    #[should_panic(expected = "Term `test` must have enough staked cycles to remove.")]
+    fn test_staked_term_not_enough_balance_for_remove_delta() {
+        let term = String::from("test");
+        let mut app = test_state_for_staking(
+            TestEnvironment::new(),
+            vec![(test_principal_id(0), 200)],
+            vec![(test_website(0), test_website_description(0))],
+            vec![(test_website(0), vec![(800, term.clone())])],
+            vec![(term.clone(), vec![(800, test_website(0))])],
+        );
+        app.env.set_caller(test_principal_id(0));
+        let stakes = app.stake(
+            test_url(0),
+            vec![StakeDelta::Remove(Stake { term, value: 801 })],
+        );
+    }
+
+    #[test]
     fn test_one_staked_deposit_and_one_add_delta() {
-        let default_stake = Stake {
-            term: String::from("test"),
-            value: 0,
-        };
         let mut app = test_state_for_staking(
             TestEnvironment::new(),
             vec![(test_principal_id(0), 1000)],
@@ -248,6 +271,36 @@ mod tests {
         let stake = stakes.get(0).cloned().unwrap_or_default();
         assert_eq!(stake.term, "test");
         assert_eq!(stake.value, 100);
+    }
+
+    #[test]
+    #[should_panic(expected = "Not enough cycles available to stake term `term3`.")]
+    fn test_one_staked_deposit_and_too_many_add_deltas() {
+        let mut app = test_state_for_staking(
+            TestEnvironment::new(),
+            vec![(test_principal_id(0), 1000)],
+            vec![],
+            vec![],
+            vec![],
+        );
+        app.env.set_caller(test_principal_id(0));
+        let stakes = app.stake(
+            test_url(0),
+            vec![
+                StakeDelta::Add(Stake {
+                    term: String::from("test"),
+                    value: 500,
+                }),
+                StakeDelta::Add(Stake {
+                    term: String::from("term2"),
+                    value: 500,
+                }),
+                StakeDelta::Add(Stake {
+                    term: String::from("term3"),
+                    value: 500,
+                }),
+            ],
+        );
     }
 
     #[test]
@@ -280,6 +333,9 @@ mod tests {
                 .unwrap_or(&0),
             1000
         );
+
+        assert!(app.staked_websites.is_empty());
+        assert!(app.staked_terms.is_empty());
     }
 
     #[test]
