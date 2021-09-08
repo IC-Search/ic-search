@@ -130,7 +130,9 @@ impl<E: Environment> AppState<E> {
         for (term, balance) in term_balances {
             staked_website.push((balance, term.clone()));
             let stake_entries = self.staked_terms.entry(term.clone()).or_insert(Vec::new());
-            let maybe_staked = stake_entries.iter().position(|entry| entry.1 == website);
+            let maybe_staked = stake_entries
+                .iter()
+                .position(|entry| entry.1.link == website.link);
             let new_stake_entry = (balance, website.clone());
             match maybe_staked {
                 Some(index) => {
@@ -212,7 +214,7 @@ mod tests {
                 .unwrap_or(&0),
             900
         );
-        let stake = stakes.get(0).unwrap_or(&default_stake);
+        let stake = stakes.get(0).cloned().unwrap_or_default();
         assert_eq!(stake.term, "test");
         assert_eq!(stake.value, 100);
     }
@@ -247,5 +249,140 @@ mod tests {
                 .unwrap_or(&0),
             1000
         );
+    }
+
+    #[test]
+    fn test_one_staked_deposit_and_add_and_remove_deltas() {
+        let default_stake = Stake {
+            term: String::from("test"),
+            value: 0,
+        };
+        let term = String::from("test");
+        let term2 = String::from("term2");
+        let mut app = test_state_for_staking(
+            TestEnvironment::new(),
+            vec![(test_principal_id(0), 200)],
+            vec![(test_website(0), test_website_description(0))],
+            vec![(test_website(0), vec![(800, term.clone())])],
+            vec![(term.clone(), vec![(800, test_website(0))])],
+        );
+        app.env.set_caller(test_principal_id(0));
+        let stakes = app.stake(
+            test_url(0),
+            vec![
+                StakeDelta::Remove(Stake {
+                    term: String::from("test"),
+                    value: 800,
+                }),
+                StakeDelta::Add(Stake {
+                    term: String::from("term2"),
+                    value: 1000,
+                }),
+            ],
+        );
+
+        assert_eq!(stakes.len(), 1);
+        let stake = stakes.get(0).cloned().unwrap_or_default();
+        assert_eq!(stake.term, "term2");
+        assert_eq!(stake.value, 1000);
+
+        assert_eq!(
+            *app.unstaked_deposits
+                .get(&test_principal_id(0))
+                .unwrap_or(&0),
+            0
+        );
+    }
+
+    #[test]
+    fn test_multiple_staked_deposit_and_add_and_remove_deltas() {
+        let default_stake = Stake {
+            term: String::from("test"),
+            value: 0,
+        };
+        let term = String::from("test");
+        let term2 = String::from("term2");
+        let mut app = test_state_for_staking(
+            TestEnvironment::new(),
+            vec![
+                (test_principal_id(0), 200),
+                (test_principal_id(1), 1000),
+                (test_principal_id(2), 500),
+            ],
+            vec![(test_website(0), test_website_description(0))],
+            vec![
+                (
+                    test_website(0),
+                    vec![(600, term.clone()), (200, term2.clone())],
+                ),
+                (test_website(1), vec![(200, term.clone())]),
+                (test_website(2), vec![(500, term2.clone())]),
+            ],
+            vec![
+                (
+                    term.clone(),
+                    vec![(600, test_website(0)), (200, test_website(1))],
+                ),
+                (
+                    term2.clone(),
+                    vec![(200, test_website(2)), (500, test_website(2))],
+                ),
+            ],
+        );
+        app.env.set_caller(test_principal_id(0));
+        let stakes = app.stake(
+            test_url(0),
+            vec![
+                StakeDelta::Remove(Stake {
+                    term: String::from("test"),
+                    value: 600,
+                }),
+                StakeDelta::Add(Stake {
+                    term: String::from("term2"),
+                    value: 800,
+                }),
+            ],
+        );
+
+        assert_eq!(stakes.len(), 1);
+        let stake = stakes.get(0).cloned().unwrap_or_default();
+        assert_eq!(stake.term, "term2");
+        assert_eq!(stake.value, 1000);
+
+        assert_eq!(
+            *app.unstaked_deposits
+                .get(&test_principal_id(0))
+                .unwrap_or(&0),
+            0
+        );
+        assert_eq!(
+            *app.unstaked_deposits
+                .get(&test_principal_id(1))
+                .unwrap_or(&0),
+            1000
+        );
+        assert_eq!(
+            *app.unstaked_deposits
+                .get(&test_principal_id(2))
+                .unwrap_or(&0),
+            500
+        );
+
+        let staked_website_0 = app
+            .staked_websites
+            .get(&test_website(0))
+            .cloned()
+            .unwrap_or(vec![]);
+        assert_eq!(staked_website_0.len(), 1);
+
+        // Evaluate that the `staked_terms` hashmap has been maintained correctly.
+        let term2_stakes = app.staked_terms.get(&term2).cloned().unwrap_or(vec![]);
+        assert_eq!(term2_stakes.len(), 2);
+        let term2_stakes_1 = term2_stakes.get(0).cloned().unwrap_or((0, test_website(0)));
+        assert_eq!(term2_stakes_1.0, 1000);
+        assert_eq!(term2_stakes_1.1.owner, test_principal_id(0));
+        let term2_stakes_2 = term2_stakes.get(1).cloned().unwrap_or((0, test_website(0)));
+        assert_eq!(term2_stakes_2.0, 500);
+        assert_eq!(term2_stakes_2.1.owner, test_principal_id(2));
     }
 }

@@ -97,6 +97,15 @@ struct Stake {
     value: u64,
 }
 
+impl Default for Stake {
+    fn default() -> Self {
+        Self {
+            term: Default::default(),
+            value: Default::default(),
+        }
+    }
+}
+
 #[async_trait]
 trait Environment: Debug + Clone {
     fn get_caller(&self) -> Principal;
