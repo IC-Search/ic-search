@@ -130,7 +130,7 @@ impl AppState<CanisterEnvironment> {
         self.init_entry(
             "ljnyy-wqaaa-aaaae-qaacq-cai",
             "Canlista",
-            &principal_to_link("m7sm4-2iaaa-aaaab-qabra-cai"),
+            &principal_to_link("k7gat-daaaa-aaaae-qaahq-cai"),
             "Find, publish and extend applications and services built on the Internet Computer",
             vec![(tc(5.0), "IC"), (tc(5.0), "Listing")],
         );
