@@ -1,4 +1,4 @@
-use crate::{AppState, Environment, WebsiteDescription};
+use crate::{clean_term, AppState, Environment, WebsiteDescription};
 use crate::{Website, APP};
 use ic_cdk_macros::query;
 use std::cmp::Reverse;
@@ -23,9 +23,10 @@ impl<E: Environment> AppState<E> {
 
         // Calculate
         for term in terms {
+            let cleaned_term = clean_term(&term);
             // Get stake
             let empty_vec = vec![];
-            let stakes = self.staked_terms.get(&term).unwrap_or(&empty_vec);
+            let stakes = self.staked_terms.get(&cleaned_term).unwrap_or(&empty_vec);
 
             // Calculate the scores
             for (stake, website) in stakes {
@@ -88,7 +89,7 @@ mod tests {
                 (test_website(3), test_website_description(3)),
             ],
             vec![(
-                String::from("Test"),
+                String::from("test"),
                 vec![
                     (1, test_website(0)),
                     (2, test_website(1)),
@@ -123,7 +124,7 @@ mod tests {
             ],
             vec![
                 (
-                    String::from("Term1"),
+                    String::from("term1"),
                     vec![
                         (1, test_website(0)),
                         (1, test_website(1)),
@@ -132,7 +133,7 @@ mod tests {
                     ],
                 ),
                 (
-                    String::from("Term2"),
+                    String::from("term2"),
                     vec![
                         (1, test_website(1)),
                         (1, test_website(2)),
@@ -140,10 +141,10 @@ mod tests {
                     ],
                 ),
                 (
-                    String::from("Term3"),
+                    String::from("term3"),
                     vec![(1, test_website(2)), (1, test_website(3))],
                 ),
-                (String::from("Term4"), vec![(1, test_website(3))]),
+                (String::from("term4"), vec![(1, test_website(3))]),
             ],
         );
 

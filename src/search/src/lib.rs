@@ -99,12 +99,6 @@ struct Stake {
     pub value: u64,
 }
 
-impl Stake {
-    pub(crate) fn term(&self) -> String {
-        self.term.to_lowercase()
-    }
-}
-
 impl Default for Stake {
     fn default() -> Self {
         Self {
@@ -112,6 +106,10 @@ impl Default for Stake {
             value: Default::default(),
         }
     }
+}
+
+pub(crate) fn clean_term(term: &String) -> String {
+    term.to_lowercase().trim().to_string()
 }
 
 #[async_trait]
@@ -282,5 +280,17 @@ mod test {
             link: test_url(seed),
             description: lipsum::lipsum_words_from_seed(30, seed),
         }
+    }
+
+    #[test]
+    fn test_clean_term() {
+        let t1 = String::from("TERM");
+        assert_eq!(clean_term(&t1), "term");
+
+        let t2 = String::from(" Term1 teRm2 ");
+        assert_eq!(clean_term(&t2), "term1 term2");
+
+        let t3 = String::from("\t\nterm\n\t");
+        assert_eq!(clean_term(&t3), "term");
     }
 }
