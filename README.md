@@ -8,7 +8,7 @@ Web 2.0 Search Engines such as Google employ web crawlers to feed data into a se
 This approach creates a weird mix of incentives that we consider harmful to the open web:
 
 - There is an incentive of website owners to trick the web crawlers, to make their content more relevant than it is
-- Using traffic statistics creates a grey market of traffic dealers employing bots or clickworkers to generate artificial traffic
+- Using traffic statistics creates a grey market of traffic dealers employing bots or click workers to generate artificial traffic
 - The algorithm has to be kept a trade secret in order to not be exploitable
 - Small changes to the algorithm can yield vastly different search results, which can potentially threaten the existence of a smaller website
 
@@ -17,7 +17,7 @@ There is just too much "magic" involved.
 
 
 DeFind turns the game around.
-Instead of a secret algorithm and a webcrawler, DeFind employs a public algorithm and let the owners of websites / canisters choose the input to the algorithm themselves.
+Instead of a secret algorithm and a web crawler, DeFind employs a public algorithm and let the owners of websites / canisters choose the input to the algorithm themselves.
 
 In order to not be exploitable, the advertisers have to back up their search terms with value, i.e. stake on the search terms under which they want their service to appear.
 
@@ -28,7 +28,7 @@ With DeFind:
 
 ## MVP
 
-The MVP as part of the Dfinihack hackathon showcases:
+The MVP as part of the DFINIHACK hackathon showcases:
 
 - User facing UI for searching websites
 - Registering websites
@@ -37,17 +37,17 @@ The MVP as part of the Dfinihack hackathon showcases:
 
 ## Roadmap
 
-There are a couple of big items on the Roadmap
+There are a couple of big items on the Roadmap.
 
 ### Algorithm
 
-The current algorithm is designed to be as simple as possible to show the possibities of the DeFind approach. It comes with a bunch of limitations:
+The current algorithm is designed to be as simple as possible to show the possibilities of the DeFind approach. It comes with a bunch of limitations:
 
 - Search terms need to be exact
-- Alost similar search terms are counted as totally different terms
+- Almost similar search terms are counted as totally different terms
 
-Therefore, a future implementation might accomodate a smarter algorithm, that has some form of distance measurement and allows for an elastic search like experience.
-If a search term is close to a staked term, the staked term might still controbute to a websites score, for example.
+Therefore, a future implementation might accommodate a smarter algorithm, that has some form of distance measurement and allows for an elastic search like experience.
+If a search term is close to a staked term, the staked term might still contribute to a websites score, for example.
 ### Monetization
 
 Developing and running a service costs money. In the MVP implementation, the service is effectively free, as advertisers can unstake their websites and regain all their money, even though we had costs running the service and provided value to the advertiser.
