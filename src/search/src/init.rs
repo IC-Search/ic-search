@@ -1,12 +1,17 @@
 use std::convert::TryFrom;
 
 use candid::Principal;
-use ic_cdk_macros::init;
+use ic_cdk_macros::{init, post_upgrade};
 
 use crate::{AppState, CanisterEnvironment, Stake, StakeDelta, WebsiteDescription, APP};
 
 #[init]
 fn init() {
+    APP.with(|state| state.borrow_mut().init())
+}
+
+#[post_upgrade]
+fn post_upgrade() {
     APP.with(|state| state.borrow_mut().init())
 }
 
