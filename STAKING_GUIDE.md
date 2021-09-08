@@ -1,41 +1,44 @@
-To add a website to be staked:
+# Staking Guide
+
+Set up some environment variables what will come in handy:
+
+```bash
+export PRINCIPAL=$(dfx identity --network ic get-principal)
+export WALLET=$(dfx identity --network ic get-wallet)
+```
+
+Add a website description to your account:
+
+```bash
+dfx canister --network ic call search set_description '(record { name="DeFind"; link="defind.ic0.app";description="The Internet Computers search engine" })'
+```
+
+View a list of owned websites:
 
 ```
-dfx canister call search set_description '(record { name="DeFind"; link="defind.ic0.app";description="The Internet Computers search engine" })'
-```
-
-To view a list of owned websites:
-
-```
-dfx canister call search get_websites '()'
+dfx canister --network ic call search get_websites '()'
 ```
 
 To see how many unstaked cycles you have:
 
 ```
-dfx canister call search get_unstaked_cycles '()'
+dfx canister --network ic call search get_unstaked_cycles '()'
 ```
 
-Get your principal ID:
+To deposit cycles to be staked run following command:
 
 ```
-dfx identity get-principal
+dfx canister --network ic --wallet $WALLET call --with-cycles 10000 search deposit_cycles "(principal \"${PRINCIPAL}\", 10000:nat64)"
 ```
 
-To deposit cycles to be staked run following command replacing <your principal id here> with your principal ID from the prior command:
+Stake deposited cycles on search terms:
 
 ```
-dfx canister --wallet rwlgt-iiaaa-aaaaa-aaaaa-cai call --with-cycles 10000 search deposit_cycles '(principal "<your principal id here>", 10000:nat64)'
+dfx canister --network ic call search stake '("defind.ic0.app", vec { variant { Add=record { term="search"; value=1000:nat64 } } })'
 ```
 
-To stake deposited cycles on search terms:
+Remove stakes on search terms:
 
 ```
-dfx canister call search stake '("defind.ic0.app", vec { variant { Add=record { term="search"; value=1000:nat64 } } })'
-```
-
-To remove stake on search terms:
-
-```
-dfx canister call search stake '("defind.ic0.app", vec { variant { Remove=record { term="search"; value=1000:nat64 } } })'
+dfx canister --network ic call search stake '("defind.ic0.app", vec { variant { Remove=record { term="search"; value=1000:nat64 } } })'
 ```
