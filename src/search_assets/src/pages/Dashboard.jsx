@@ -1,23 +1,60 @@
 import * as React from 'react';
 import Button from 'react-bootstrap/Button';
-import { search } from "../../../declarations/search";
+import {idlFactory} from "../../../declarations/search/search.did.js";
+import { Actor, HttpAgent } from "@dfinity/agent";
+import { AuthClient } from "@dfinity/auth-client";
 import AddWebsiteForm from '../components/AddWebsiteForm';
 import AddCyclesForm from '../components/AddCyclesForm';
 import WebsiteList from '../components/WebsiteList';
 
 const Dashboard = () => {
+    // const agent = new HttpAgent({host: "https://ic0.app"});
+    // const searchActor = Actor.createActor(search, {
+    //     agent,
+    //     canisterId: "rrkah-fqaaa-aaaaa-aaaaq-cai"
+    // })
+
     const [balance, setBalance] = React.useState(0);
     const [isAdding, setIsAdding] = React.useState(false);
     const [addingCycles, setAddingCycles] = React.useState(false);
     const [websites, setWebsites] = React.useState([]);
+    const [agent, setAgent] = React.useState(null);
+    const [searchActor, setSearchActor] = React.useState(null);
+    const [authClient, setAuthClient] = React.useState(null);
+
+    // React.useEffect(() => {
+    //     console.log(searchActor);
+    //     const cycles =  searchActor.get_unstaked_cycles();
+    //     console.log(cycles);
+    // });
+// 
+    // React.useEffect(() => {
+    //     const websites = searchActor.get_websites();
+    //     console.log(websites);
+    // });
 
     React.useEffect(() => {
-        const cycles =  search.get_unstaked_cycles();
-    });
+        (async () => {
+            const authClient = await AuthClient.create();
+            setAuthClient(authClient);
+            if (await authClient.isAuthenticated()) {
+                handleSetup(authClient);
+            }
+        })();
+    }, []);
 
-    React.useEffect(() => {
-        const websites = search.get_websites();
-    })
+    const handleSetup = (authClient) => {
+        const identity = authClient.getIdentity();
+        const agent = new HttpAgent({identity, host: "https://ic0.app"});
+        const searchActor = Actor.createActor(idlFactory, {
+            agent,
+            canisterId: "rrkah-fqaaa-aaaaa-aaaaq-cai"
+        });
+        const cycles =  searchActor.get_unstaked_cycles();
+        const websites = searchActor.get_websites();
+        setAgent(agent);
+        setSearchActor(searchActor);
+    }
 
     const cancelAdd = () => {
         setIsAdding(false);
@@ -27,12 +64,18 @@ const Dashboard = () => {
         setAddingCycles(false);
     };
 
-    const addWebsite = async (website) => {
-        const result = await search.set_description(website);
+    const addWebsite = (website) => {
+        console.log('adding site')
+        const result =  searchActor.set_description(website);
+        console.log(result);
+        result.then(res => {
+            console.log('res');
+            console.log(res);
+        })
     };
 
     const depositCycles = async (amount) => {
-        const result = await search.deposit_cycles();
+        const result = await searchActor.deposit_cycles();
     };
 
     return (
