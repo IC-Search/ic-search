@@ -189,27 +189,26 @@ impl AppState<CanisterEnvironment> {
 
         // Now we use a caller overwrite to set the correct caller and then initiate a number of
         // calls that set the website description and stake the values on it
-        let mut env = self.env.clone();
-        env.with_caller_overwrite(caller, || {
-            // Set the description
-            self.set_description(WebsiteDescription {
-                name: name.to_string(),
-                link: link.to_string(),
-                description: desc.to_string(),
-            });
-
-            // Stake the terms on the website
-            let stake_deltas = stakes
-                .iter()
-                .map(|(value, term)| {
-                    StakeDelta::Add(Stake {
-                        term: term.to_string(),
-                        value: *value,
-                    })
-                })
-                .collect();
-            self.stake(link.to_string(), stake_deltas);
+        self.env.set_caller_overwrite(caller);
+        // Set the description
+        self.set_description(WebsiteDescription {
+            name: name.to_string(),
+            link: link.to_string(),
+            description: desc.to_string(),
         });
+
+        // Stake the terms on the website
+        let stake_deltas = stakes
+            .iter()
+            .map(|(value, term)| {
+                StakeDelta::Add(Stake {
+                    term: term.to_string(),
+                    value: *value,
+                })
+            })
+            .collect();
+        self.stake(link.to_string(), stake_deltas);
+        self.env.unset_caller_overwrite();
     }
 }
 /// Converts Principals (as Strings) into verified urls
