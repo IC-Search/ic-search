@@ -32,7 +32,7 @@ impl AppState<CanisterEnvironment> {
             "r7inp-6aaaa-aaaaa-aaabq-cai",
             "Internet Identity",
             &principal_to_link("rdmx6-jaaaa-aaaaa-aaadq-cai"),
-            "Internet Identity service enables you to authenticate securely and anonymously\
+            "Internet Identity service enables you to authenticate securely and anonymously \
                 when accessing applications on the Internet Computer",
             vec![
                 (tc(8.0), "IC"),
@@ -46,9 +46,9 @@ impl AppState<CanisterEnvironment> {
         // Distrikt
         self.init_entry(
             "hy3go-2qaaa-aaaae-aaabq-cai",
-            "Distrik",
+            "Distrikt",
             &principal_to_link("c7fao-laaaa-aaaae-aaa4q-cai"),
-            "distrikt is a decentralized, professional social\
+            "distrikt is a decentralized, professional social \
                     media network that empowers users to own and control their identity.",
             vec![
                 (tc(8.0), "Social"),
