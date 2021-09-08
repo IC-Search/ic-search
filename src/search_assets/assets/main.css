@@ -36,11 +36,41 @@ section {
 .main-content {
     text-align: center;
     margin: 0 auto;
-    width: 50%;
+    width: 75%;
+}
+
+.dashboard__main {
+    padding-top: 10px;
+}
+
+.dasboard-main__balance {
+    color:white;
+    text-align: left;
+    padding: 10px;
+    background-color: #343a40;
+    border-radius: 10px;
+    min-width: 200px;
+    max-height: 100px;
 }
 
 .dasboard-main__sites {
+    color:white;
+    text-align: left;
     border-radius: 10px;
     padding:10px;
     background-color: #343a40;
+    margin-right: 100px;
+    max-width: 300px;
+    min-width: 300px;
+    min-height: 400px;
+}
+
+.dash-card {
+    display: inline-block;
+    vertical-align: top;
+}
+
+.add-website-btn-container {
+    margin-left:10px;   
+    margin-bottom: 10px;
 }

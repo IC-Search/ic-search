@@ -41,7 +41,6 @@ const Navigation = () => {
             const authClient = await AuthClient.create();
             setAuthClient(authClient);
             const item = localStorage.getItem('ic-identity');
-            console.log(JSON.parse(item)[0]);
             if(await authClient.isAuthenticated()) {
                 setAuthenticated(true);
                 handleAuthenticated();
@@ -59,22 +58,16 @@ const Navigation = () => {
                         </Nav.Link>                       
                     </NavBar.Brand>
                 </Nav>
-                <Nav className="">
+                <Nav className="ml-auto">
                     {!authenticated && 
                         <Nav.Item>
                             <Nav.Link onClick={handleLogin} className="justify-content-center">Login</Nav.Link>
                         </Nav.Item>
                     }
                     {authenticated &&
-                        <DropdownButton title="=" drop="down">
-                            <Dropdown.Item className="justify-content-center">
-                                <Link to={`/dashboard/${JSON.parse(localStorage.getItem('ic-identity'))[0]}`}>My Sites</Link>
-                            </Dropdown.Item>
-                            <Dropdown.Divider />
-                            <Dropdown.Item>
-                                Balance: 0.00 cycles
-                            </Dropdown.Item>
-                        </DropdownButton>
+                        <Nav.Item>
+                           <Link to={`/dashboard/${JSON.parse(localStorage.getItem('ic-identity'))[0]}`}>My Sites</Link>
+                        </Nav.Item>
                     }
                 </Nav>
             </NavBar>
