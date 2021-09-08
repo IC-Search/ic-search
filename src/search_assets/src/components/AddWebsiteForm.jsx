@@ -24,7 +24,7 @@ const AddWebsiteForm = ({cancelAdd, addWebsite}) => {
                     <Form.Label>Description</Form.Label>
                     <Form.Control name="description" onChange={updateState} size="sm" as="textarea" placeholder="Short Description" />
                 </Form.Group>
-                <Button onClick={() => addWebsite(state)} variant="primary" type="submit">
+                <Button onClick={(e) => addWebsite(e, state)} variant="primary" type="submit">
                   Submit
                 </Button>
                 <Button onClick={cancelAdd} variant="danger">Cancel</Button>
