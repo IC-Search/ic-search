@@ -281,4 +281,16 @@ mod test {
             description: lipsum::lipsum_words_from_seed(30, seed),
         }
     }
+
+    #[test]
+    fn test_clean_term() {
+        let t1 = String::from("TERM");
+        assert_eq!(clean_term(&t1), "term");
+
+        let t2 = String::from(" Term1 teRm2 ");
+        assert_eq!(clean_term(&t2), "term1 term2");
+
+        let t3 = String::from("\t\nterm\n\t");
+        assert_eq!(clean_term(&t3), "term");
+    }
 }
