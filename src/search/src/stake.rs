@@ -1,9 +1,7 @@
-use std::collections::HashMap;
-
 use crate::{AppState, Environment, StakeDelta};
 use crate::{Stake, Website, APP};
-use ic_cdk::export::Principal;
 use ic_cdk_macros::{query, update};
+use std::collections::HashMap;
 
 #[query]
 fn get_stakes(website: Website) -> Vec<Stake> {
@@ -87,7 +85,7 @@ impl<E: Environment> AppState<E> {
                 );
             }
 
-            let new_balance = balance.checked_sub(stake.value).unwrap_or(0);
+            let new_balance = balance.saturating_sub(stake.value);
             term_balances.insert(stake.term(), new_balance);
             reclaimed_cycles += stake.value;
         }
@@ -158,7 +156,10 @@ impl<E: Environment> AppState<E> {
         term_balances: &HashMap<String, u64>,
     ) {
         for (term, balance) in term_balances {
-            let staked_websites = self.staked_terms.entry(term.clone()).or_insert(vec![]);
+            let staked_websites = self
+                .staked_terms
+                .entry(term.clone())
+                .or_insert_with(Vec::new);
             let maybe_stake_index = staked_websites.iter().position(|website_stake| {
                 website_stake.1.link == website.link && website_stake.1.owner == website.owner
             });
@@ -181,6 +182,7 @@ impl<E: Environment> AppState<E> {
 mod tests {
     use super::*;
     use crate::{test::*, WebsiteDescription};
+    use candid::Principal;
 
     fn test_state_for_staking(
         env: TestEnvironment,

@@ -142,7 +142,7 @@ impl Environment for CanisterEnvironment {
     }
 
     async fn send_cycles_to_canister(&self, amount: u64, destination: Principal) -> bool {
-        match call_with_payment(destination, &"wallet_receive", (), amount).await {
+        match call_with_payment(destination, "wallet_receive", (), amount).await {
             Ok(()) => true,
             Err((_, string)) => false,
         }

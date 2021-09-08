@@ -48,11 +48,7 @@ impl<E: Environment> AppState<E> {
             // Map the page of website keys to a page of website descriptions
             .map(|page| {
                 page.iter()
-                    .filter_map(|(website, _)| {
-                        self.websites
-                            .get(website)
-                            .map(|description| description.clone())
-                    })
+                    .filter_map(|(website, _)| self.websites.get(website).cloned())
                     .collect::<Vec<WebsiteDescription>>()
             })
             // Return empty vector if the nth page does not exist

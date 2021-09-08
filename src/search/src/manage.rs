@@ -37,7 +37,7 @@ impl<E: Environment> AppState<E> {
                         .clone()
                 })
                 .collect::<Vec<WebsiteDescription>>(),
-            None => return Vec::new(),
+            None => Vec::new(),
         }
     }
 
@@ -93,10 +93,7 @@ impl<E: Environment> AppState<E> {
         owned_websites.remove(index);
 
         // Make the website key
-        let website = Website {
-            owner,
-            link: link.clone(),
-        };
+        let website = Website { owner, link };
 
         // Remove from websites
         self.websites.remove(&website);
