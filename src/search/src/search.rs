@@ -1,10 +1,9 @@
 use crate::{clean_term, AppState, Environment, WebsiteDescription};
 use crate::{Website, APP};
 use ic_cdk_macros::query;
-use std::cmp::Reverse;
 use std::collections::HashMap;
 
-type Score = u64;
+type Score = f64;
 
 #[query]
 fn search(terms: Vec<String>, page: u64, entries_per_page: u64) -> Vec<WebsiteDescription> {
@@ -28,18 +27,22 @@ impl<E: Environment> AppState<E> {
             let empty_vec = vec![];
             let stakes = self.staked_terms.get(&cleaned_term).unwrap_or(&empty_vec);
 
+            // TODO: Keep total stakes as canister state instead of calculating
+            let total_stakes = stakes.iter().map(|(stake, _)| stake).sum::<u64>() as f64;
+
             // Calculate the scores
             for (stake, website) in stakes {
                 score
                     .entry(website.clone())
-                    .and_modify(|score| *score += stake)
-                    .or_insert(*stake);
+                    .and_modify(|score| *score += *stake as f64 / total_stakes)
+                    .or_insert(*stake as f64 / total_stakes);
             }
         }
 
         // Turn score map into vec and sort descending by score
-        let mut score: Vec<(Website, u64)> = score.drain().collect();
-        score.sort_by_key(|(_, score)| Reverse(*score));
+        let mut score: Vec<(Website, f64)> = score.drain().collect();
+        score.sort_by(|(_, score_a), (_, score_b)| score_a.partial_cmp(score_b).unwrap());
+        let score: Vec<(Website, f64)> = score.drain(..).rev().collect();
 
         score
             // Chunk by `entries_per_page`
