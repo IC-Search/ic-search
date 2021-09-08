@@ -1,4 +1,4 @@
-use crate::{AppState, Environment, StakeDelta};
+use crate::{clean_term, AppState, Environment, StakeDelta};
 use crate::{Stake, Website, APP};
 use ic_cdk_macros::{query, update};
 use std::collections::HashMap;
@@ -15,10 +15,10 @@ fn stake(link: String, stake_delta: Vec<StakeDelta>) -> Vec<Stake> {
 
 impl<E: Environment> AppState<E> {
     fn _get_stakes(&self, website: Website) -> Vec<Stake> {
-        let default: Vec<(u64, String)> = Vec::new();
         self.staked_websites
             .get(&website)
-            .unwrap_or(&default)
+            .cloned()
+            .unwrap_or_default()
             .iter()
             .map(|stake| Stake {
                 term: stake.1.clone(),
@@ -46,7 +46,7 @@ impl<E: Environment> AppState<E> {
         let website = Website { owner, link };
 
         // Transform staked_websites entry into a map.
-        let default_stakes: Vec<(u64, String)> = Vec::new();
+        let default_stakes: Vec<(u64, String)> = vec![];
         let stakes = self
             .staked_websites
             .get(&website)
@@ -57,8 +57,8 @@ impl<E: Environment> AppState<E> {
             .collect();
 
         // Load the deltas into their own vectors.
-        let mut add_deltas: Vec<Stake> = Vec::new();
-        let mut remove_deltas: Vec<Stake> = Vec::new();
+        let mut add_deltas: Vec<Stake> = vec![];
+        let mut remove_deltas: Vec<Stake> = vec![];
         for delta in stake_deltas {
             match delta {
                 StakeDelta::Add(stake) => {
@@ -77,7 +77,8 @@ impl<E: Environment> AppState<E> {
         // Updates balances with the remove deltas.
         let mut reclaimed_cycles: u64 = 0;
         for stake in remove_deltas {
-            let balance = *term_balances.get(&stake.term()).unwrap_or(&0);
+            let term = clean_term(&stake.term);
+            let balance = *term_balances.get(&term).unwrap_or(&0);
             if balance < stake.value {
                 panic!(
                     "Term `{}` must have enough staked cycles to remove.",
@@ -86,7 +87,7 @@ impl<E: Environment> AppState<E> {
             }
 
             let new_balance = balance.saturating_sub(stake.value);
-            term_balances.insert(stake.term(), new_balance);
+            term_balances.insert(term, new_balance);
             reclaimed_cycles += stake.value;
         }
 
@@ -98,6 +99,7 @@ impl<E: Environment> AppState<E> {
         }
 
         for stake in add_deltas {
+            let term = clean_term(&stake.term);
             if available_cycles < stake.value {
                 panic!(
                     "Not enough cycles available to stake term `{}`.",
@@ -106,7 +108,7 @@ impl<E: Environment> AppState<E> {
             }
 
             term_balances
-                .entry(stake.term())
+                .entry(term)
                 .and_modify(|balance| {
                     *balance += stake.value;
                 })

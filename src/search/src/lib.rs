@@ -99,12 +99,6 @@ struct Stake {
     pub value: u64,
 }
 
-impl Stake {
-    pub(crate) fn term(&self) -> String {
-        self.term.to_lowercase()
-    }
-}
-
 impl Default for Stake {
     fn default() -> Self {
         Self {
@@ -112,6 +106,10 @@ impl Default for Stake {
             value: Default::default(),
         }
     }
+}
+
+pub(crate) fn clean_term(term: &String) -> String {
+    term.to_lowercase().trim().to_string()
 }
 
 #[async_trait]
