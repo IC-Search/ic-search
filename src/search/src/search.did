@@ -10,7 +10,7 @@ type WebsiteDescription = record {
 // Can also refer to a stake delta.
 type Stake = record {
     term: text;
-    stake: int64;
+    value: nat64;
 };
 
 // This refers to the change in staking for a term.
@@ -68,7 +68,7 @@ service : {
     // the rest is returned.
     //
     // Returns number of actually withdrawn cycles.
-    "deposit_cycles": (max_amount: nat64) -> (deposited: nat64);
+    "deposit_cycles": (owner: principal, max_amount: nat64) -> (deposited: nat64);
     
     // Withdraws up to `amount` of cycles to the cycles wallet specified by `destination`.
     //

@@ -9,8 +9,8 @@ fn get_unstaked_cycles() -> u64 {
 }
 
 #[update]
-fn deposit_cycles(max_amount: u64) -> u64 {
-    APP.with(|state| state.borrow_mut().deposit_cycles(max_amount))
+fn deposit_cycles(owner: Principal, max_amount: u64) -> u64 {
+    APP.with(|state| state.borrow_mut().deposit_cycles(owner, max_amount))
 }
 
 #[update]
@@ -41,7 +41,7 @@ impl<E: Environment> AppState<E> {
             .to_owned()
     }
 
-    fn deposit_cycles(&mut self, max_amount: u64) -> u64 {
+    fn deposit_cycles(&mut self, owner: Principal, max_amount: u64) -> u64 {
         // Get the caller
         let caller = self.env.get_non_anon_caller();
 
@@ -50,7 +50,7 @@ impl<E: Environment> AppState<E> {
 
         // Register accepted cycles in the app state
         self.unstaked_deposits
-            .entry(caller)
+            .entry(owner)
             .and_modify(|current_cycles| *current_cycles += accepted_cycles)
             .or_insert(accepted_cycles);
 
@@ -116,13 +116,13 @@ mod tests {
         // the amount of cycles sent with the message
         env.set_caller(test_principal_id(0));
         env.set_cycles_in_msg(50);
-        app.deposit_cycles(100);
+        app.deposit_cycles(test_principal_id(0), 100);
 
         // Second caller deposits cycles. The `max_amount` is lower than
         // the amount of cycles sent with the message
         env.set_caller(test_principal_id(1));
         env.set_cycles_in_msg(80);
-        app.deposit_cycles(40);
+        app.deposit_cycles(test_principal_id(1), 40);
 
         // Check the first callers cycles
         env.set_caller(test_principal_id(0));
@@ -189,7 +189,7 @@ mod tests {
         env.set_caller(Principal::anonymous());
         env.set_cycles_in_msg(200);
         let mut app = test_state_for_deposit(TestEnvironment::new(), vec![]);
-        app.deposit_cycles(100);
+        app.deposit_cycles(test_principal_id(0), 100);
     }
 
     /// Tests that an anonymous account can not withdraw cycles

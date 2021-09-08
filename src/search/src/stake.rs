@@ -215,7 +215,9 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "Principal does not have enough unstaked cycles.")]
+    #[should_panic(
+        expected = "Principal 74xlx-rlmho-nkoz7-xqw2t-pqgyx-jp2kr-tx42t-ofajs-bx53e-7eito-h2i does not have enough unstaked cycles."
+    )]
     fn test_empty_unstaked_deposits() {
         let mut app =
             test_state_for_staking(TestEnvironment::new(), vec![], vec![], vec![], vec![]);
