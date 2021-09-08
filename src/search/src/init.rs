@@ -17,7 +17,7 @@ impl AppState<CanisterEnvironment> {
             "r7inp-6aaaa-aaaaa-aaabq-cai",
             "NNS Dapp",
             &principal_to_link("qoctq-giaaa-aaaaa-aaaea-cai"),
-            "UI of the Internet Computer's Network Nervous System",
+            "A Governance Dapp for voting on Internet Computer governance proposals",
             vec![
                 (tc(10.0), "IC"),
                 (tc(2.0), "NNS"),
@@ -32,7 +32,8 @@ impl AppState<CanisterEnvironment> {
             "r7inp-6aaaa-aaaaa-aaabq-cai",
             "Internet Identity",
             &principal_to_link("rdmx6-jaaaa-aaaaa-aaadq-cai"),
-            "Internet Identity privaciy preserving authentication system",
+            "Internet Identity service enables you to authenticate securely and anonymously\
+                when accessing applications on the Internet Computer",
             vec![
                 (tc(8.0), "IC"),
                 (tc(2.0), "II"),
@@ -42,7 +43,125 @@ impl AppState<CanisterEnvironment> {
             ],
         );
 
-        // TODO: Distrikt, DSCVR, Motoko School, Motoko Playground, OpenChat, Canlista, DeFind,
+        // Distrikt
+        self.init_entry(
+            "hy3go-2qaaa-aaaae-aaabq-cai",
+            "Distrik",
+            &principal_to_link("c7fao-laaaa-aaaae-aaa4q-cai"),
+            "distrikt is a decentralized, professional social\
+                    media network that empowers users to own and control their identity.",
+            vec![
+                (tc(8.0), "Social"),
+                (tc(8.0), "Media"),
+                (tc(2.0), "Distrikt"),
+                (tc(2.0), "Disrupt"),
+                (tc(5.0), "Facebook"),
+            ],
+        );
+
+        // DSCVR
+        self.init_entry(
+            "g6mnv-cyaaa-aaaab-qaaka-cai",
+            "DSCVR",
+            &principal_to_link("h5aet-waaaa-aaaab-qaamq-cai"),
+            "A decentralized social news aggregator built on the Internet Computer",
+            vec![
+                (tc(8.0), "Social"),
+                (tc(8.0), "Media"),
+                (tc(12.0), "Discover"),
+                (tc(5.0), "DSCVR"),
+                (tc(5.0), "Reddit"),
+            ],
+        );
+
+        // OpenChat
+        self.init_entry(
+            "7y2se-wiaaa-aaaaf-aaaba-cai",
+            "OpenChat",
+            &principal_to_link("7e6iv-biaaa-aaaaf-aaada-cai"),
+            "A Truly Decentralized Alternative to WhatsApp",
+            vec![
+                (tc(5.0), "Open"),
+                (tc(5.0), "Chat"),
+                (tc(12.0), "WhatsApp"),
+                (tc(5.0), "Communication"),
+                (tc(5.0), "IC"),
+            ],
+        );
+
+        // Motoko School
+        self.init_entry(
+            "vrmfo-gqaaa-aaaah-aaaga-cai",
+            "Motoko School",
+            &principal_to_link("anyuk-uiaaa-aaaah-aaduq-cai"),
+            "A collaborative online school to learn the Motoko programming language",
+            vec![
+                (tc(5.0), "Motoko"),
+                (tc(5.0), "Programming"),
+                (tc(5.0), "Language"),
+                (tc(12.0), "Online"),
+                (tc(5.0), "Lessons"),
+                (tc(5.0), "Canister"),
+            ],
+        );
+
+        // Motoko Playground
+        self.init_entry(
+            "a3hwk-dyaaa-aaaab-qaa4a-cai",
+            "Motoko Playgrond",
+            &principal_to_link("m7sm4-2iaaa-aaaab-qabra-cai"),
+            "An online playground to develop and deploy motoko canisters",
+            vec![
+                (tc(5.0), "Motoko"),
+                (tc(5.0), "Programming"),
+                (tc(5.0), "Language"),
+                (tc(12.0), "Online"),
+                (tc(15.0), "Playground"),
+                (tc(5.0), "Canister"),
+            ],
+        );
+
+        // Canlista
+        self.init_entry(
+            "ljnyy-wqaaa-aaaae-qaacq-cai",
+            "Canlista",
+            &principal_to_link("m7sm4-2iaaa-aaaab-qabra-cai"),
+            "Find, publish and extend applications and services built on the Internet Computer",
+            vec![(tc(5.0), "IC"), (tc(5.0), "Listing")],
+        );
+
+        // IC Drive
+        self.init_entry(
+            "a3hwk-dyaaa-aaaab-qaa4a-cai",
+            "IC Drive",
+            &principal_to_link("rglue-kyaaa-aaaah-qakca-cai"),
+            "Secure and Private Decentralized Storage App",
+            vec![
+                (tc(5.0), "IC"),
+                (tc(15.0), "Drive"),
+                (tc(15.0), "Cloud"),
+                (tc(12.0), "Dropbox"),
+                (tc(10.0), "File"),
+                (tc(8.0), "Storage"),
+            ],
+        );
+
+        // DeFind
+        self.init_entry(
+            "iqcq7-kaaaa-aaaai-qanaa-cai",
+            "DeFind",
+            &principal_to_link("ilhm2-qyaaa-aaaai-qancq-cai"),
+            "A Stake based search engine ready for the Web 3.0",
+            vec![
+                (tc(5.0), "IC"),
+                (tc(15.0), "Find"),
+                (tc(15.0), "Search"),
+                (tc(15.0), "Engine"),
+                (tc(15.0), "Canister"),
+                (tc(12.0), "Google"),
+                (tc(10.0), "Web"),
+            ],
+        );
     }
 
     /// Enters a valid website and stakes it with terms.
