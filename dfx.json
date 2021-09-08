@@ -1,7 +1,7 @@
 {
   "canisters": {
     "search": {
-      "build": "cargo build --target wasm32-unknown-unknown --package search --release",
+      "build": "src/search/build.sh",
       "candid": "src/search/src/search.did",
       "wasm": "target/wasm32-unknown-unknown/release/search.wasm",
       "type": "custom"
