@@ -41,7 +41,7 @@ impl<E: Environment> AppState<E> {
         }
     }
 
-    fn set_description(&mut self, website: WebsiteDescription) {
+    pub(crate) fn set_description(&mut self, website: WebsiteDescription) {
         // Get the caller
         let owner = self.env.get_non_anon_caller();
 

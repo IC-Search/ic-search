@@ -2,6 +2,7 @@
 #![allow(unused_variables)]
 
 mod deposit;
+mod init;
 mod manage;
 mod search;
 mod stake;
@@ -20,7 +21,8 @@ use ic_cdk_macros::query;
 use std::{cell::RefCell, collections::HashMap, fmt::Debug};
 
 thread_local! {
-    static APP: RefCell<AppState<CanisterEnvironment>> = RefCell::new(AppState::new(CanisterEnvironment));
+    static APP: RefCell<AppState<CanisterEnvironment>>
+        = RefCell::new(AppState::new(CanisterEnvironment::new()));
 }
 
 #[query]
@@ -93,8 +95,8 @@ enum StakeDelta {
 
 #[derive(Debug, Clone, CandidType, Deserialize)]
 struct Stake {
-    term: String,
-    value: u64,
+    pub term: String,
+    pub value: u64,
 }
 
 impl Stake {
@@ -129,12 +131,40 @@ trait Environment: Debug + Clone {
 }
 
 #[derive(Debug, Clone)]
-struct CanisterEnvironment;
+struct CanisterEnvironment {
+    /// Can be used to manually overwrite the caller.
+    ///
+    /// Usefull for initializations, updates, etc.
+    caller_overwrite: Option<Principal>,
+}
+
+impl CanisterEnvironment {
+    fn new() -> Self {
+        Self {
+            caller_overwrite: None,
+        }
+    }
+
+    pub(crate) fn with_caller_overwrite<T, F: FnOnce() -> T>(
+        &mut self,
+        caller: Principal,
+        f: F,
+    ) -> T {
+        self.caller_overwrite = Some(caller);
+        let result = f();
+        self.caller_overwrite = None;
+        result
+    }
+}
 
 #[async_trait]
 impl Environment for CanisterEnvironment {
     fn get_caller(&self) -> Principal {
-        caller()
+        match self.caller_overwrite {
+            // Return the caller overwrite, if one is set
+            Some(caller) => caller,
+            None => caller(),
+        }
     }
 
     fn get_time(&self) -> u64 {

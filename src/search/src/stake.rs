@@ -38,7 +38,7 @@ impl<E: Environment> AppState<E> {
         self._get_stakes(website)
     }
 
-    fn stake(&mut self, link: String, stake_deltas: Vec<StakeDelta>) -> Vec<Stake> {
+    pub(crate) fn stake(&mut self, link: String, stake_deltas: Vec<StakeDelta>) -> Vec<Stake> {
         // Get the caller.
         let owner = self.env.get_non_anon_caller();
 
