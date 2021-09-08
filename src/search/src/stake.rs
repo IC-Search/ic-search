@@ -191,7 +191,6 @@ mod tests {
 
     use super::*;
     use crate::{test::*, WebsiteDescription};
-    use candid::Principal;
 
     fn test_state_for_staking(
         env: TestEnvironment,
