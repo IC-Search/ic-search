@@ -1,6 +1,9 @@
 import * as React from 'react';
 import Button from 'react-bootstrap/Button';
-import { search } from "../../../declarations/search";
+import {idlFactory} from "../../../declarations/search/search.did.js";
+import {search} from "../../../declarations/search";
+import { Actor, HttpAgent } from "@dfinity/agent";
+import { AuthClient } from "@dfinity/auth-client";
 import AddWebsiteForm from '../components/AddWebsiteForm';
 import AddCyclesForm from '../components/AddCyclesForm';
 import WebsiteList from '../components/WebsiteList';
@@ -10,14 +13,32 @@ const Dashboard = () => {
     const [isAdding, setIsAdding] = React.useState(false);
     const [addingCycles, setAddingCycles] = React.useState(false);
     const [websites, setWebsites] = React.useState([]);
+    const [agent, setAgent] = React.useState(null);
+    const [searchActor, setSearchActor] = React.useState(null);
+    const [authClient, setAuthClient] = React.useState(null);
 
     React.useEffect(() => {
-        const cycles =  search.get_unstaked_cycles();
-    });
+        (async () => {
+            const authClient = await AuthClient.create();
+            setAuthClient(authClient);
+            if (await authClient.isAuthenticated()) {
+                handleSetup(authClient);
+            }
+        })();
+    }, []);
 
-    React.useEffect(() => {
-        const websites = search.get_websites();
-    })
+    const handleSetup = async (authClient) => {
+        const identity = authClient.getIdentity();
+        const agent = new HttpAgent({identity, host: "https://ic0.app"});
+        const searchActor = Actor.createActor(idlFactory, {
+            agent,
+            canisterId: "rrkah-fqaaa-aaaaa-aaaaq-cai"
+        });
+        const cycles =  await searchActor.get_unstaked_cycles();
+        const websites = await searchActor.get_websites();
+        setAgent(agent);
+        setSearchActor(searchActor);
+    }
 
     const cancelAdd = () => {
         setIsAdding(false);
@@ -27,12 +48,14 @@ const Dashboard = () => {
         setAddingCycles(false);
     };
 
-    const addWebsite = async (website) => {
-        const result = await search.set_description(website);
+    const addWebsite = (e, website) => {
+        e.preventDefault();
+        const result =  searchActor.set_description(website);
+        console.log(result);
     };
 
     const depositCycles = async (amount) => {
-        const result = await search.deposit_cycles();
+        const result = await searchActor.deposit_cycles();
     };
 
     return (
@@ -56,7 +79,7 @@ const Dashboard = () => {
                         <h4>Balance</h4>
                     </div>
                     <div className="dash-card add-website-btn-container">
-                        <Button onClick={() => setAddingCycles(true)} disabled={addingCycles} size="sm"className="add-website-btn" title="Add Site">+</Button>
+                        <Button onClick={() => setAddingCycles(true)} disabled={addingCycles} size="sm"className="add-website-btn" title="Add Cycles">+</Button>
                     </div>
                     <div>
                         {addingCycles && <AddCyclesForm depositCycles={depositCycles} cancelDeposit={cancelDeposit} />}

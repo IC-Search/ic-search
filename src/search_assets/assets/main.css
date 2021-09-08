@@ -75,3 +75,20 @@ section {
     margin-left:10px;   
     margin-bottom: 10px;
 }
+
+.results_name {
+    color: blueviolet;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.results_description {
+    font-size: 12px;
+    margin-left: 15px;
+}
+
+.search-form {
+    margin-bottom: 20px;
+}
+
+

@@ -15,7 +15,7 @@ const Navigation = () => {
     const [test, setTest] = React.useState(null);
     const [principal, setPrincipal] = React.useState(null);
 
-    const handleAuthenticated = () => {
+    const handleAuthenticated = (authClient) => {
         const identity = authClient.getIdentity();
         const agent = new HttpAgent({identity, host: "https://ic0.app"});
         const principal = agent.getPrincipal();
@@ -40,10 +40,9 @@ const Navigation = () => {
         (async () => {
             const authClient = await AuthClient.create();
             setAuthClient(authClient);
-            const item = localStorage.getItem('ic-identity');
             if(await authClient.isAuthenticated()) {
                 setAuthenticated(true);
-                handleAuthenticated();
+                handleAuthenticated(authClient);
             }
         })();
     }, [])
