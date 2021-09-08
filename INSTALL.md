@@ -9,6 +9,11 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 rustup target add wasm32-unknown-unknown
 ```
 
+```bash
+# Cmake is required to build this project
+sudo apt install -y cmake
+```
+
 ## Running the project locally
 
 If you want to test your project locally, you can use the following commands:

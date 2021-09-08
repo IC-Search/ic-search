@@ -1,12 +1,17 @@
 use std::convert::TryFrom;
 
 use candid::Principal;
-use ic_cdk_macros::init;
+use ic_cdk_macros::{init, post_upgrade};
 
 use crate::{AppState, CanisterEnvironment, Stake, StakeDelta, WebsiteDescription, APP};
 
 #[init]
 fn init() {
+    APP.with(|state| state.borrow_mut().init())
+}
+
+#[post_upgrade]
+fn post_upgrade() {
     APP.with(|state| state.borrow_mut().init())
 }
 
@@ -32,7 +37,7 @@ impl AppState<CanisterEnvironment> {
             "r7inp-6aaaa-aaaaa-aaabq-cai",
             "Internet Identity",
             &principal_to_link("rdmx6-jaaaa-aaaaa-aaadq-cai"),
-            "Internet Identity service enables you to authenticate securely and anonymously\
+            "Internet Identity service enables you to authenticate securely and anonymously \
                 when accessing applications on the Internet Computer",
             vec![
                 (tc(8.0), "IC"),
@@ -46,9 +51,9 @@ impl AppState<CanisterEnvironment> {
         // Distrikt
         self.init_entry(
             "hy3go-2qaaa-aaaae-aaabq-cai",
-            "Distrik",
+            "Distrikt",
             &principal_to_link("c7fao-laaaa-aaaae-aaa4q-cai"),
-            "distrikt is a decentralized, professional social\
+            "distrikt is a decentralized, professional social \
                     media network that empowers users to own and control their identity.",
             vec![
                 (tc(8.0), "Social"),
@@ -125,7 +130,7 @@ impl AppState<CanisterEnvironment> {
         self.init_entry(
             "ljnyy-wqaaa-aaaae-qaacq-cai",
             "Canlista",
-            &principal_to_link("m7sm4-2iaaa-aaaab-qabra-cai"),
+            &principal_to_link("k7gat-daaaa-aaaae-qaahq-cai"),
             "Find, publish and extend applications and services built on the Internet Computer",
             vec![(tc(5.0), "IC"), (tc(5.0), "Listing")],
         );
