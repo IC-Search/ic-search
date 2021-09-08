@@ -2,30 +2,37 @@ import * as React from 'react';
 import Button from 'react-bootstrap/Button';
 import { search } from "../../../declarations/search";
 import AddWebsiteForm from '../components/AddWebsiteForm';
+import AddCyclesForm from '../components/AddCyclesForm';
 import WebsiteList from '../components/WebsiteList';
 
 const Dashboard = () => {
     const [balance, setBalance] = React.useState(0);
     const [isAdding, setIsAdding] = React.useState(false);
+    const [addingCycles, setAddingCycles] = React.useState(false);
     const [websites, setWebsites] = React.useState([]);
 
     React.useEffect(() => {
-        // const cycles =  search.get__unstaked_cycles();
-        // console.log(search);
+        const cycles =  search.get_unstaked_cycles();
     });
 
     React.useEffect(() => {
         const websites = search.get_websites();
-        console.log(websites);
     })
 
     const cancelAdd = () => {
         setIsAdding(false);
     };
 
+    const cancelDeposit = () => {
+        setAddingCycles(false);
+    };
+
     const addWebsite = async (website) => {
         const result = await search.set_description(website);
-        console.log("Result" + result);
+    };
+
+    const depositCycles = async (amount) => {
+        const result = await search.deposit_cycles();
     };
 
     return (
@@ -45,8 +52,16 @@ const Dashboard = () => {
                     </div>
                 </div>
                 <div className="dasboard-main__balance dash-card">
-                    <h4>Balance</h4>
-                    <span>{balance}</span>
+                    <div className="dash-card">
+                        <h4>Balance</h4>
+                    </div>
+                    <div className="dash-card add-website-btn-container">
+                        <Button onClick={() => setAddingCycles(true)} disabled={addingCycles} size="sm"className="add-website-btn" title="Add Site">+</Button>
+                    </div>
+                    <div>
+                        {addingCycles && <AddCyclesForm depositCycles={depositCycles} cancelDeposit={cancelDeposit} />}
+                        {!addingCycles && <span>{balance}</span>}
+                    </div>
                 </div>
             </div>
         </div>
