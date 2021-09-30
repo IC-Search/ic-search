@@ -59,9 +59,9 @@ const Navigation = () => {
                 </Nav>
                 <Nav className="ml-auto">
                     {!authenticated && 
-                        <Nav.Item>
-                            <Nav.Link onClick={handleLogin} className="justify-content-center">Login</Nav.Link>
-                        </Nav.Item>
+                        <Nav.Link className="login-link">
+                            <Nav.Link style={{cursor: 'pointer'}} onClick={handleLogin} className="justify-content-center">Login</Nav.Link>
+                        </Nav.Link>
                     }
                     {authenticated &&
                         <Nav.Item>

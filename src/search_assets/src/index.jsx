@@ -10,6 +10,9 @@ const App = () => {
   return (
     <Router>
       <Navigation />
+      <div className="demo-banner">
+          <p>The Project is currently in a Demo phase. The state of the canister might be reset without warning.</p>
+      </div>
       <React.Suspense fallback={<div>Loading...</div>}></React.Suspense>
       <div className="main-content">
           <Switch>

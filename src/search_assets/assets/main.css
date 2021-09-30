@@ -87,8 +87,21 @@ section {
     margin-left: 15px;
 }
 
+.login-link {
+    color: #fff;
+    background-color: #007bff;
+    border-color: #007bff; 
+    cursor: pointer; 
+}
+
 .search-form {
     margin-bottom: 20px;
+}
+
+.demo-banner {
+    background-color: red;
+    color:white;
+    text-align: center;
 }
 
 
