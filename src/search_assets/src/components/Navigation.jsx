@@ -49,7 +49,7 @@ const Navigation = () => {
  
     return (
         <div className="nav-bar"> 
-            <NavBar bg="dark">
+            <NavBar>
                 <Nav>
                     <NavBar.Brand>
                         <Nav.Link className="justify-content-center">
@@ -57,7 +57,9 @@ const Navigation = () => {
                         </Nav.Link>                       
                     </NavBar.Brand>
                 </Nav>
-                <Nav className="ml-auto">
+                {/**
+                 * 
+                 *                 <Nav className="ml-auto">
                     {!authenticated && 
                         <Nav.Link className="login-link">
                             <Nav.Link style={{cursor: 'pointer'}} onClick={handleLogin} className="justify-content-center">Login</Nav.Link>
@@ -69,6 +71,7 @@ const Navigation = () => {
                         </Nav.Item>
                     }
                 </Nav>
+                 */}
             </NavBar>
         </div>
     )

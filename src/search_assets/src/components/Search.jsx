@@ -28,8 +28,8 @@ const Search = () => {
                     <Form.Group className="mb-3" controlId="formBasicName">
                         <Form.Control name="terms" onChange={updateState} size={didSearch && websites.length > 0 ? "sm" : "lg"} type="text" placeholder="Search" />
                     </Form.Group> 
-                    <Button size={didSearch && websites.length > 0 ? "sm" : "lg"} onClick={async (e) => await searchTerm(e)} variant="primary" type="submit">
-                      DeFind Stuff :)
+                    <Button className="search-btn" size={didSearch && websites.length > 0 ? "sm" : "lg"} onClick={async (e) => await searchTerm(e)} type="submit">
+                      DeFind
                     </Button>              
                 </Form> 
                 {
