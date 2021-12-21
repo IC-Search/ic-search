@@ -5,7 +5,7 @@ import Search from "../components/Search";
 const LandingPage = () => {
     return (
         <div className="landing">
-            <h2>DeFind</h2>
+            <h2 className="landing__title">DeFind</h2>
             <div>
                 <Search />
             </div>
