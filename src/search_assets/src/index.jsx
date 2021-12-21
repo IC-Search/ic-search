@@ -4,6 +4,7 @@ import Navigation from "./components/Navigation";
 import { Route, Switch, HashRouter as Router } from 'react-router-dom';
 import routes from './config/routes';
 import { search } from "../../declarations/search";
+import '../../search_assets/assets/main.scss';
 
 const App = () => {
 
