@@ -29,7 +29,10 @@ const Dashboard = () => {
 
     const handleSetup = async (authClient) => {
         const identity = authClient.getIdentity();
-        const agent = new HttpAgent({identity, host: "https://ic0.app"});
+        // need to dynamically set the host for local development and production = https://ic0.app
+        const agent = new HttpAgent({identity, host: "http://localhost:8000"});
+        // Local Development only
+        agent.fetchRootKey();
         const searchActor = Actor.createActor(idlFactory, {
             agent,
             canisterId: "rrkah-fqaaa-aaaaa-aaaaq-cai"

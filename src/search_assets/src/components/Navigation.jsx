@@ -17,7 +17,8 @@ const Navigation = () => {
 
     const handleAuthenticated = (authClient) => {
         const identity = authClient.getIdentity();
-        const agent = new HttpAgent({identity, host: "https://ic0.app"});
+        // need to dynamically set the host for local development and production = https://ic0.app
+        const agent = new HttpAgent({identity, host: "http://localhost:8000?canisterId=r7inp-6aaaa-aaaaa-aaabq-cai"});
         const principal = agent.getPrincipal();
         setPrincipal(principal);
         setAuthenticated(true);
@@ -25,6 +26,8 @@ const Navigation = () => {
 
     const handleLogin = () => {
         authClient.login({
+            // need to dynamically set the host for local development and production = https://ic0.app
+            identityProvider: "http://localhost:8000?canisterId=r7inp-6aaaa-aaaaa-aaabq-cai",
             maxTimeToLive: BigInt(7 * 24 * 60 * 60 * 1e9), 
             onSuccess: () => handleAuthenticated(authClient),       
         })
@@ -57,9 +60,7 @@ const Navigation = () => {
                         </Nav.Link>                       
                     </NavBar.Brand>
                 </Nav>
-                {/**
-                 * 
-                 *                 <Nav className="ml-auto">
+                <Nav className="ml-auto">
                     {!authenticated && 
                         <Nav.Link className="login-link">
                             <Nav.Link style={{cursor: 'pointer'}} onClick={handleLogin} className="justify-content-center">Login</Nav.Link>
@@ -71,7 +72,6 @@ const Navigation = () => {
                         </Nav.Item>
                     }
                 </Nav>
-                 */}
             </NavBar>
         </div>
     )
